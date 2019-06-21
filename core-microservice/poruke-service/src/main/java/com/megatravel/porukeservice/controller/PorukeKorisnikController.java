@@ -12,6 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,11 +23,11 @@ import org.springframework.web.client.RestTemplate;
 
 import com.megatravel.porukeservice.dto.NovaPorukaDTO;
 import com.megatravel.porukeservice.dto.PorukaDTO;
-import com.megatravel.porukeservice.jwt.JwtTokenUtils;
 import com.megatravel.porukeservice.model.Korisnik;
 import com.megatravel.porukeservice.model.Poruka;
 import com.megatravel.porukeservice.model.StatusPoruke;
 import com.megatravel.porukeservice.model.TipOsobe;
+import com.megatravel.porukeservice.security.JwtTokenUtils;
 import com.megatravel.porukeservice.service.PorukeService;
 
 @RestController
@@ -43,6 +44,7 @@ public class PorukeKorisnikController {
 	@Autowired
 	RestTemplate restTemplate;
 	
+	@PreAuthorize("hasAnyRole('ROLE_KORISNIK')")
 	@RequestMapping(value = "/{agentId}/{token}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<PorukaDTO>> getPorukeWithAgent(@PathVariable("agentId") Long agentId, @PathVariable("token") String token, Pageable page) {
 		System.out.println("getPorukeWithAgent()");
@@ -73,6 +75,7 @@ public class PorukeKorisnikController {
 		return new ResponseEntity<>(retVal, headers, HttpStatus.OK);
 	}
 	
+	@PreAuthorize("hasAnyRole('ROLE_KORISNIK')")
 	@RequestMapping(value = "/neprocitane/{token}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<PorukaDTO>> getNeprocitanePoruke(Pageable page, @PathVariable("token") String token) {
 		System.out.println("getNeprocitanePoruke()");
@@ -88,7 +91,7 @@ public class PorukeKorisnikController {
 			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 		}
 		
-		Page<Poruka> poruke = porukeService.findAllNeprocitane(korisnik.getIdKorisnik(), page);
+		Page<Poruka> poruke = porukeService.findAllNeprocitaneZaKorisnika(korisnik.getIdKorisnik(), page);
 		
 		HttpHeaders headers = new HttpHeaders();
 		long porukeTotal = poruke.getTotalElements();
@@ -103,6 +106,7 @@ public class PorukeKorisnikController {
 		return new ResponseEntity<>(retVal, headers, HttpStatus.OK);
 	}
 	
+	@PreAuthorize("hasAnyRole('ROLE_KORISNIK')")
 	@RequestMapping(value = "/{agentId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Void> setProcitanePorukeFromAgent(@PathVariable Long agentId, HttpServletRequest req) {
 		System.out.println("setProcitanePorukeFromAgent()");
@@ -130,6 +134,7 @@ public class PorukeKorisnikController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
+	@PreAuthorize("hasAnyRole('ROLE_KORISNIK')")
 	@RequestMapping(value = "/posalji/{token}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<PorukaDTO> sendPoruka(@RequestBody NovaPorukaDTO novaPoruka, @PathVariable("token") String token) {
 		System.out.println("sendPoruka()");

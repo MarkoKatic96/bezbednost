@@ -30,13 +30,6 @@ public class KategorijaSmestaja {
 
 	}
 	
-	public KategorijaSmestaja(Long id, String naziv, List<Smestaj> smestaji) {
-		super();
-		this.id = id;
-		this.naziv = naziv;
-		this.smestaji = smestaji;
-	}
-
 	public Long getId() {
 		return id;
 	}

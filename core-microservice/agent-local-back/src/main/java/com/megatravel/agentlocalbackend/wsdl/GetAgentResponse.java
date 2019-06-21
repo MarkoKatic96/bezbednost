@@ -42,7 +42,7 @@ import javax.xml.bind.annotation.XmlType;
 public class GetAgentResponse {
 
     @XmlElement(required = true)
-    protected AgentDTO agent;
+    private AgentDTO agent;
 
     /**
      * Gets the value of the agent property.

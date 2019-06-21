@@ -4,54 +4,40 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class MyUserDetails implements UserDetailsService {
 
 	@Autowired
-    private AdminRepository adminRepository;
-	
-	@Autowired
-    private AgentRepository agentRepository;
-	
-	@Autowired
-    private KorisnikRepository korisnikRepository;
+    private RestTemplate authService;
 
-	//izvuce iz baze usere koji na m trebaju i automatksi se aktivira
+	//izvuce iz baze usere koji nam trebaju i automatksi se aktivira
 	@Override
-	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-		String rola = "";
-		String lozinka = "";
+	public UserDetails loadUserByUsername(String token) throws UsernameNotFoundException {
+		ResponseEntity<UserDAO> user = null;
 		
-		if (korisnikRepository.findByEmail(email)!=null) {
-        	rola = "ROLE_KORISNIK";
-        	lozinka = korisnikRepository.findByEmail(email).getLozinka();
-        } else if (agentRepository.findByEmail(email)!=null) {
-        	rola = "ROLE_AGENT";
-        	lozinka = agentRepository.findByEmail(email).getLozinka();
-        } else if (adminRepository.findByEmail(email)!=null) {
-        	rola = "ROLE_ADMIN";
-        	lozinka = adminRepository.findByEmail(email).getLozinka();
-        } else {
-        	throw new UsernameNotFoundException("Fuck your rola! It doesn't exists moron. BYW email is " + email);
-        }
-		
-		System.out.println("email: " + email + " comes with role: " + rola);
+		try {
+			user = authService.postForEntity("http://auth-service/auth/login/role", token, UserDAO.class);
+		} catch (Exception e) {
+			return null;
+		}
+		if (user.getStatusCode() != HttpStatus.OK) {
+			return null;
+		}
 		
 		List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+		grantedAuthorities.add(new SimpleGrantedAuthority(user.getBody().getRola()));
 
-		grantedAuthorities.add(new SimpleGrantedAuthority(rola));
-		//grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-		//grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_KORISNIK"));
-		//grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_AGENT"));
-
-		return new org.springframework.security.core.userdetails.User(email, lozinka, true, true, true,
+		return new org.springframework.security.core.userdetails.User(user.getBody().getEmail(), user.getBody().getLozinka(), true, true, true,
 				true, grantedAuthorities);
 	}
 

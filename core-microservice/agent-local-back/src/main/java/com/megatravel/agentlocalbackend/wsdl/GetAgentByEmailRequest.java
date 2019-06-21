@@ -42,7 +42,7 @@ import javax.xml.bind.annotation.XmlType;
 public class GetAgentByEmailRequest {
 
     @XmlElement(required = true)
-    protected String email;
+    private String email;
 
     /**
      * Gets the value of the email property.

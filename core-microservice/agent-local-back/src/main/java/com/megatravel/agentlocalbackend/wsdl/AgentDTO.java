@@ -8,8 +8,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
-import com.megatravel.agentlocalbackend.wsdl.GetAgentByEmailResponse.Agent;
-
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "agentDTO", propOrder = {
     "datumClanstva",
@@ -23,46 +21,25 @@ public class AgentDTO {
 	
 	@XmlSchemaType(name = "dateTime")
     @XmlElement(namespace="https://megatravel.com/datumClanstva")
-    protected Date datumClanstva;
+    private Date datumClanstva;
     
     @XmlElement(namespace="https://megatravel.com/email")
-    protected String email;
+    private String email;
     
     @XmlElement(namespace="https://megatravel.com/idAgenta")
-    protected Long idAgenta;
+    private Long idAgenta;
     
     @XmlElement(namespace="https://megatravel.com/ime")
-    protected String ime;
+    private String ime;
     
     @XmlElement(namespace="https://megatravel.com/poslovniMaticniBroj")
-    protected Long poslovniMaticniBroj;
+    private Long poslovniMaticniBroj;
     
     @XmlElement(namespace="https://megatravel.com/prezime")
-    protected String prezime;
-	
-    public AgentDTO(Long idAgenta, String ime, String prezime, Long poslovniMaticniBroj, Date datumClanstva,
-			String email) {
-		super();
-		this.idAgenta = idAgenta;
-		this.ime = ime;
-		this.prezime = prezime;
-		this.poslovniMaticniBroj = poslovniMaticniBroj;
-		this.datumClanstva = datumClanstva;
-		this.email = email;
-	}
+    private String prezime;
     
     public AgentDTO() {
     	
-	}
-
-    public AgentDTO(Agent agent) {
-		super();
-		this.idAgenta = agent.getIdAgenta();
-		this.ime = agent.getIme();
-		this.prezime = agent.getPrezime();
-		this.poslovniMaticniBroj = agent.getPoslovniMaticniBroj();
-		this.datumClanstva = agent.getDatumClanstva();
-		this.email = agent.getEmail();
 	}
 
 	public Long getIdAgenta() {

@@ -15,15 +15,15 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.megatravel.authservice.config.JwtTokenUtil;
+import com.megatravel.authservice.security.JwtTokenUtil;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.SignatureException;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     
-	static final String TOKEN_PREFIX = "Bearer";
-    static final String HEADER_STRING = "Authorization";
+	private static final String TOKEN_PREFIX = "Bearer";
+    private static final String HEADER_STRING = "Authorization";
 	
 	@Autowired
     private UserDetailsService userDetailsService;

@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,12 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import com.megatravel.smestajservice.dto.SmestajKorisnikDTO;
-import com.megatravel.smestajservice.jwt.JwtTokenUtils;
 import com.megatravel.smestajservice.model.DodatneUsluge;
 import com.megatravel.smestajservice.model.KategorijaSmestaja;
 import com.megatravel.smestajservice.model.Smestaj;
 import com.megatravel.smestajservice.model.SmestajiRestTemplate;
 import com.megatravel.smestajservice.model.TipSmestaja;
+import com.megatravel.smestajservice.security.JwtTokenUtils;
 import com.megatravel.smestajservice.service.SmestajService;
 
 @RestController
@@ -130,7 +131,7 @@ public class SmestajKorisnikController {
 		return new ResponseEntity<List<DodatneUsluge>>(lista, HttpStatus.OK);
 	}
 	
-	//ovo mi je samo za testiranje ostavi ovako ne zasticeno kasnije cemo zastititi
+	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value="/dodaj-uslugu/{uslugaId}/{smestajId}", method = RequestMethod.GET)
 	public ResponseEntity<SmestajKorisnikDTO> dodajUslugu(@PathVariable("uslugaId") Long uslugaId,@PathVariable("smestajId") Long smestajId){
 		SmestajKorisnikDTO smestaj = smestajService.dodajUslugu(uslugaId, smestajId);

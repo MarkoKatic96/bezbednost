@@ -11,16 +11,6 @@ public class SamostalnaRezervacijaDTO {
     private Date odDatuma;
     private Date doDatuma;
     private Date timestamp;
-	
-    public SamostalnaRezervacijaDTO(Long samostalnaRezervacijaId, Long smestajId, Date odDatuma, Date doDatuma,
-			Date timestamp) {
-		super();
-		this.samostalnaRezervacijaId = samostalnaRezervacijaId;
-		this.smestajId = smestajId;
-		this.odDatuma = odDatuma;
-		this.doDatuma = doDatuma;
-		this.timestamp = timestamp;
-	}
     
     public SamostalnaRezervacijaDTO(SamostalnaRezervacija rez) {
 		super();

@@ -26,7 +26,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.megatravel.agentlocalbackend.dto.SmestajDTO;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "")
@@ -281,22 +280,4 @@ public class Smestaj {
         this.listaSlika = value;
     }
 
-    public void update(SmestajDTO s) {
-		this.idSmestaja = s.getIdSmestaja();
-		this.adresa = s.getAdresa();
-		koordinate.setLongitude(s.getLongitude());
-		koordinate.setLatitude(s.getLatitude());
-		this.tipSmestaja = s.getTipSmestaja();
-		this.kategorijaSmestaja = s.getKategorijaSmestaja();
-		this.opis = s.getOpis();
-		this.maxOsoba = s.getMaxOsoba();
-		this.maxDanaZaOtkazivanje = s.getMaxDanaZaOtkazivanje();
-		this.cenaProlece = s.getCenaProlece();
-		this.cenaLeto = s.getCenaLeto();
-		this.cenaJesen = s.getCenaJesen();
-		this.cenaZima = s.getCenaZima();
-		this.vlasnik = s.getVlasnik();
-		this.listaDodatnihUsluga = s.getListaDodatnihUsluga();
-		this.listaSlika = s.getListaSlika();
-    }
 }

@@ -8,8 +8,6 @@ public interface IAdminService {
 
 	public Admin findByEmail(String email);
 
-	public String signin(String email, String lozinka);
-
 	public AdminDTO register(RegisterDTO registracija);
 
 }

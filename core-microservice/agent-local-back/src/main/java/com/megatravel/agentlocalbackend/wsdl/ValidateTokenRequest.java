@@ -42,7 +42,7 @@ import javax.xml.bind.annotation.XmlType;
 public class ValidateTokenRequest {
 
     @XmlElement(required = true)
-    protected String token;
+    private String token;
 
     /**
      * Gets the value of the token property.

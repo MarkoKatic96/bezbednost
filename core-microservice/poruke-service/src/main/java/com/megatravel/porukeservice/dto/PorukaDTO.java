@@ -19,19 +19,6 @@ public class PorukaDTO {
 	public PorukaDTO() {
 	}
 	
-	public PorukaDTO(Long idPoruke, Date datumSlanja, Long posiljalac, String tipPosiljaoca, Long primalac,
-			String tipPrimaoca, String sadrzaj, StatusPoruke status) {
-		super();
-		this.idPoruke = idPoruke;
-		this.datumSlanja = datumSlanja;
-		this.posiljalac = posiljalac;
-		this.tipPosiljaoca = tipPosiljaoca;
-		this.primalac = primalac;
-		this.tipPrimaoca = tipPrimaoca;
-		this.sadrzaj = sadrzaj;
-		this.status = status;
-	}
-	
 	public PorukaDTO(Poruka p) {
 		super();
 		this.idPoruke = p.getIdPoruke();

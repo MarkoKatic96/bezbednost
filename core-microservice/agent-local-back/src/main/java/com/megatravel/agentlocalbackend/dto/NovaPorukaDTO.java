@@ -7,12 +7,6 @@ public class NovaPorukaDTO {
 	
 	public NovaPorukaDTO() {
 	}
-	
-	public NovaPorukaDTO(Long primalac, String sadrzaj) {
-		super();
-		this.primalac = primalac;
-		this.sadrzaj = sadrzaj;
-	}
 
 	public Long getPrimalac() {
 		return primalac;

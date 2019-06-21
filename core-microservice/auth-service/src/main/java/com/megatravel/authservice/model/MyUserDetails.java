@@ -20,16 +20,6 @@ public class MyUserDetails implements UserDetails {
     private boolean isEnabled;
     private List<GrantedAuthority> grantedAuthorities;
 
-    public MyUserDetails(String username, String password,Integer active, boolean isLocked, boolean isExpired, boolean isEnabled, String [] authorities) {
-        this.username = username;
-        this.password = password;
-        this.active = active;
-        this.isLocked = isLocked;
-        this.isExpired = isExpired;
-        this.isEnabled = isEnabled;
-        this.grantedAuthorities = AuthorityUtils.createAuthorityList(authorities);
-    }
-
     public MyUserDetails(String username,  String [] authorities) {
         this.username = username;
         this.grantedAuthorities = AuthorityUtils.createAuthorityList(authorities);

@@ -19,19 +19,19 @@ public class Admin
 {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected long idAdmina;
+    private long idAdmina;
     
     @XmlElement(required = true)
-    protected String ime;
+    private String ime;
     
     @XmlElement(required = true)
-    protected String prezime;
+    private String prezime;
 
     @XmlElement(required = true)
-    protected String email;
+    private String email;
     
     @XmlElement(required = true)
-    protected String lozinka;
+    private String lozinka;
 
 	public long getIdAdmina() {
 		return idAdmina;

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,11 +23,11 @@ import org.springframework.web.client.RestTemplate;
 import io.webxml.reservationservice.dto.LokalneRezervacijeDTO;
 import io.webxml.reservationservice.dto.RezervacijaDTO;
 import io.webxml.reservationservice.dto.SamostalnaRezervacijaDTO;
-import io.webxml.reservationservice.jwt.JwtTokenUtils;
 import io.webxml.reservationservice.model.Agent;
 import io.webxml.reservationservice.model.PotvrdaRezervacije;
 import io.webxml.reservationservice.model.Rezervacija;
 import io.webxml.reservationservice.model.SamostalnaRezervacija;
+import io.webxml.reservationservice.security.JwtTokenUtils;
 import io.webxml.reservationservice.service.RezervacijaService;
 import io.webxml.reservationservice.service.SamostalnaRezervacijaService;
 
@@ -46,6 +47,7 @@ public class RezervacijaAgentController {
 	@Autowired
 	JwtTokenUtils jwtTokenUtils;
 	
+	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SamostalnaRezervacijaDTO> createRezervacija(@RequestBody SamostalnaRezervacijaDTO rezDTO, HttpServletRequest req) {
 		System.out.println("createRezervacija()");
@@ -69,6 +71,7 @@ public class RezervacijaAgentController {
 		return new ResponseEntity<>(new SamostalnaRezervacijaDTO(retVal), HttpStatus.CREATED);
 	}
 	
+	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<Void> deleteRezervacija(@PathVariable Long id, HttpServletRequest req) {
 		System.out.println("deleteRezervacija()");
@@ -95,6 +98,7 @@ public class RezervacijaAgentController {
 		}
 	}
 	
+	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "/potvrdi", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<RezervacijaDTO> potvrdiRezervacija(@RequestBody PotvrdaRezervacije potvrda, HttpServletRequest req) {
 		System.out.println("potvrdiRezervacija()");
@@ -123,9 +127,9 @@ public class RezervacijaAgentController {
 		return new ResponseEntity<>(new RezervacijaDTO(retVal), HttpStatus.OK);
 	}
 	
+	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "/update/{timestamp}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<RezervacijaDTO>> getRezervacijeUpdate(@PathVariable String timestamp, 
-			HttpServletRequest req) {
+	public ResponseEntity<List<RezervacijaDTO>> getRezervacijeUpdate(@PathVariable String timestamp, HttpServletRequest req) {
 		System.out.println("getRezervacijeUpdate()");
 		
 		String token = jwtTokenUtils.resolveToken(req);
@@ -162,6 +166,7 @@ public class RezervacijaAgentController {
 		return new ResponseEntity<>(retVal, HttpStatus.OK);
 	}
 	
+	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "/update", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<LokalneRezervacijeDTO>> sendRezervacijeUpdate(@RequestBody List<LokalneRezervacijeDTO> listaLokalnihRezervacija, HttpServletRequest req) {
 		System.out.println("sendRezervacijeUpdate()");

@@ -27,13 +27,6 @@ public class User {
 	@NotBlank
 	@ManyToOne
 	private Rola role;
-	
-	public User(@NotBlank String email, @NotBlank String lozinka, @NotBlank Rola role) {
-		super();
-		this.email = email;
-		this.lozinka = lozinka;
-		this.role = role;
-	}
 
 	public User() {}
 	

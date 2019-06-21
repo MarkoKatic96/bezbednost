@@ -2,11 +2,11 @@ package io.xws.adminservice.dto;
 
 public class AdminDTO
 {
-	protected long idAdmina;
-    protected String ime;
-    protected String prezime;
-    protected String email;
-    protected String lozinka;
+	private long idAdmina;
+    private String ime;
+    private String prezime;
+    private String email;
+    private String lozinka;
 	public long getIdAdmina() {
 		return idAdmina;
 	}

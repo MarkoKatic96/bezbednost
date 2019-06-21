@@ -1,31 +1,13 @@
 package com.megatravel.ratingservice.dto;
 
-import com.megatravel.ratingservice.model.Ocena;
-
 public class NovaOcenaDTO {
 	
-    protected Long idSmestaj;
-    protected Long idRezervacija;
-    protected Long idKorisnik;
-    protected short ocena;
+    private Long idSmestaj;
+    private Long idRezervacija;
+    private Long idKorisnik;
+    private short ocena;
 
     public NovaOcenaDTO() { }
-
-	public NovaOcenaDTO(Long idSmestaj, Long idRezervacija, Long idKorisnik, short ocena) {
-		super();
-		this.idSmestaj = idSmestaj;
-		this.idRezervacija = idRezervacija;
-		this.idKorisnik = idKorisnik;
-		this.ocena = ocena;
-	}
-	
-	public NovaOcenaDTO(Ocena ocena) {
-		super();
-		this.idSmestaj = ocena.getIdSmestaj();
-		this.idRezervacija = ocena.getIdRezervacija();
-		this.idKorisnik = ocena.getIdKorisnik();
-		this.ocena = ocena.getOcena();
-	}
 	
     /**
      * Gets the value of the idSmestaj property.

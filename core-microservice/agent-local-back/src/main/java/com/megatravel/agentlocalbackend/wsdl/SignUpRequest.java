@@ -42,7 +42,7 @@ import javax.xml.bind.annotation.XmlType;
 public class SignUpRequest {
 
     @XmlElement(required = true)
-    protected AgentRegistracijaDTO agentRegistracijaDTO;
+    private AgentRegistracijaDTO agentRegistracijaDTO;
 
     /**
      * Gets the value of the agentRegistracijaDTO property.

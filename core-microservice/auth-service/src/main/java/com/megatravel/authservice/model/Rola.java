@@ -16,12 +16,6 @@ public class Rola {
 	@NotBlank
 	private String nazivRole;
 	
-	public Rola(Long id, @NotBlank String nazivRole) {
-		super();
-		this.id = id;
-		this.nazivRole = nazivRole;
-	}
-	
 	public Rola() {}
 
 	public Long getId() {

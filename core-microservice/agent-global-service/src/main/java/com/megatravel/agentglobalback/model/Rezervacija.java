@@ -78,20 +78,6 @@ public class Rezervacija {
 
     public Rezervacija() {
 	}
-    
-    public Rezervacija(Long rezervacijaId, @NotNull Long smestajId, @NotNull Long vlasnikId, @NotNull Long korisnikId, @NotNull Date odDatuma,
-			@NotNull Date doDatuma, @NotNull StatusRezervacije statusRezervacije) {
-		super();
-		this.rezervacijaId = rezervacijaId;
-		this.smestajId = smestajId;
-		this.vlasnikId = vlasnikId;
-		this.korisnikId = korisnikId;
-		this.odDatuma = odDatuma;
-		this.doDatuma = doDatuma;
-		this.statusRezervacije = statusRezervacije.toString();
-		this.timestamp = new Date(System.currentTimeMillis());
-		this.updateTimestamp = new Date(System.currentTimeMillis());
-	}
 
 	public Date getOdDatuma() {
 		return odDatuma;

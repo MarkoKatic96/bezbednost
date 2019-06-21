@@ -20,20 +20,7 @@ public class NeaktiviranAgentService {
 		return agentRepository.findByPoslovniMaticniBroj(poslovniMaticniBroj);
 	}
 
-	public NeaktiviranAgent findOne(Long id) {
-		try{
-			return agentRepository.findById(id).get();
-		} catch (Exception e) {
-			return null;
-		}
-	}
-
 	public NeaktiviranAgent save(NeaktiviranAgent agent) {
 		return agentRepository.save(agent);
 	}
-	
-	public void delete(NeaktiviranAgent agent) {
-		agentRepository.delete(agent);
-	}
-	
 }

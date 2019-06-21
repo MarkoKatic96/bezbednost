@@ -32,7 +32,8 @@ import javax.xml.bind.annotation.XmlType;
 public enum TipOsobe {
 
     AGENT,
-    KORISNIK;
+    KORISNIK,
+    ADMIN;
 
     public String value() {
         return name();

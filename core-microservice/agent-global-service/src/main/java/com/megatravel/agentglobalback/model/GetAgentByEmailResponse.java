@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlType;
 public class GetAgentByEmailResponse {
 
 	@XmlElement(required = true)
-	protected Agent agent;
+	private Agent agent;
 
 	public Agent getAgent() {
 		return agent;

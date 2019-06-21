@@ -39,19 +39,6 @@ public class Poruka {
 	
 	}
 
-	public Poruka(Long idPoruke, @NotNull Long posiljalac, TipOsobe tipPosiljaoca,
-			@NotNull Long primalac, TipOsobe tipPrimaoca, String sadrzaj, StatusPoruke status) {
-		super();
-		this.idPoruke = idPoruke;
-		this.datumSlanja = new Date(System.currentTimeMillis());
-		this.posiljalac = posiljalac;
-		this.tipPosiljaoca = tipPosiljaoca.toString();
-		this.primalac = primalac;
-		this.tipPrimaoca = tipPrimaoca.toString();
-		this.sadrzaj = sadrzaj;
-		this.status = status.toString();
-	}
-
 	public Long getIdPoruke() {
 		return idPoruke;
 	}

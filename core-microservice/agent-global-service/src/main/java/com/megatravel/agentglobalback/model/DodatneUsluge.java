@@ -8,7 +8,6 @@
 
 package com.megatravel.agentglobalback.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -35,13 +34,6 @@ public class DodatneUsluge {
 	
 	public DodatneUsluge() {
 	
-	}
-	
-	public DodatneUsluge(Long id, @NotNull String nazivDodatneUsluge) {
-		super();
-		this.idDodatneUsluge = id;
-		this.nazivDodatneUsluge = nazivDodatneUsluge;
-		listaSmestaja = new ArrayList<>();
 	}
 
 	public Long getIdDodatneUsluge() {

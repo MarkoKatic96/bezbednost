@@ -45,11 +45,11 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class DodatneUsluge {
 
-    protected long idDodatneUsluge;
+    private long idDodatneUsluge;
     @XmlElement(required = true)
-    protected String nazivDodatneUsluge;
+    private String nazivDodatneUsluge;
     @XmlElement(required = true)
-    protected List<Object> listaSmestaja;
+    private List<Object> listaSmestaja;
 
     /**
      * Gets the value of the idDodatneUsluge property.

@@ -40,7 +40,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "getAgentRequest")
 public class GetAgentRequest {
 
-    protected long id;
+    private long id;
 
     /**
      * Gets the value of the id property.

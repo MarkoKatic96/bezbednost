@@ -2,7 +2,6 @@ package com.megatravel.agentlocalbackend.dto;
 
 import java.util.Date;
 
-import com.megatravel.agentlocalbackend.model.Poruka;
 import com.megatravel.agentlocalbackend.model.StatusPoruke;
 
 public class PorukaDTO {
@@ -19,37 +18,8 @@ public class PorukaDTO {
 	public PorukaDTO() {
 	}
 	
-	public PorukaDTO(Long idPoruke, Date datumSlanja, Long posiljalac, String tipPosiljaoca, Long primalac,
-			String tipPrimaoca, String sadrzaj, StatusPoruke status) {
-		super();
-		this.idPoruke = idPoruke;
-		this.datumSlanja = datumSlanja;
-		this.posiljalac = posiljalac;
-		this.tipPosiljaoca = tipPosiljaoca;
-		this.primalac = primalac;
-		this.tipPrimaoca = tipPrimaoca;
-		this.sadrzaj = sadrzaj;
-		this.status = status;
-	}
-	
-	public PorukaDTO(Poruka p) {
-		super();
-		this.idPoruke = p.getIdPoruke();
-		this.datumSlanja = p.getDatumSlanja();
-		this.posiljalac = p.getPosiljalac();
-		this.tipPosiljaoca = p.getTipPosiljaoca();
-		this.primalac = p.getPosiljalac();
-		this.tipPrimaoca = p.getTipPosiljaoca();
-		this.sadrzaj = p.getSadrzaj();
-		this.status = p.getStatus();
-	}
-	
 	public Long getIdPoruke() {
 		return idPoruke;
-	}
-
-	public void setIdPoruke(Long idPoruke) {
-		this.idPoruke = idPoruke;
 	}
 
 	public Date getDatumSlanja() {

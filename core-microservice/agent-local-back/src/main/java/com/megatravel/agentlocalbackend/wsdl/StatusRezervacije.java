@@ -34,20 +34,10 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "statusRezervacije")
 @XmlEnum
 public enum StatusRezervacije {
-
     KREIRANA,
     OTKAZANA,
     U_TOKU,
     ISTEKLA,
     POTVRDJENA,
     NEIZVRSENA;
-
-    public String value() {
-        return name();
-    }
-
-    public static StatusRezervacije fromValue(String v) {
-        return valueOf(v);
-    }
-
 }

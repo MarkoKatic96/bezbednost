@@ -56,20 +56,20 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class Poruka {
 
-    protected long idPoruke;
+    private long idPoruke;
     @XmlElement(required = true)
     @XmlSchemaType(name = "dateTime")
-    protected Date datumSlanja;
-    protected long posiljalac;
+    private Date datumSlanja;
+    private long posiljalac;
     @XmlElement(required = true)
-    protected String tipPosiljaoca;
-    protected long primalac;
+    private String tipPosiljaoca;
+    private long primalac;
     @XmlElement(required = true)
-    protected String tipPrimaoca;
+    private String tipPrimaoca;
     @XmlElement(required = true)
-    protected String sadrzaj;
+    private String sadrzaj;
     @XmlElement(required = true)
-    protected StatusPoruke status;
+    private StatusPoruke status;
 
     /**
      * Gets the value of the idPoruke property.

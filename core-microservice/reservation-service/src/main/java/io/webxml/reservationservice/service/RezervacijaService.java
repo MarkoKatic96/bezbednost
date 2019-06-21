@@ -10,14 +10,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import io.webxml.reservationservice.model.Rezervacija;
+import io.webxml.reservationservice.model.SamostalnaRezervacija;
 import io.webxml.reservationservice.model.StatusRezervacije;
 import io.webxml.reservationservice.repository.RezervacijaRepository;
+import io.webxml.reservationservice.repository.SamostalnaRezervacijaRepository;
 
 @Service
 public class RezervacijaService {
-
-	private @Autowired
-	RezervacijaRepository rezervacijaRepository;
+	
+	@Autowired
+	private RezervacijaRepository rezervacijaRepository;
+	
+	@Autowired
+	private SamostalnaRezervacijaRepository samostalnaRezervacijaRepository;
 	
 	public List<Rezervacija> getAllReservations(){
 		
@@ -54,8 +59,8 @@ public class RezervacijaService {
 	public Rezervacija reserve(Rezervacija rezervacija){
 		int zauzeto = 0;
 		Optional<List<Rezervacija>> rezervacije = Optional.of(rezervacijaRepository.findAll());
-		//List<Rezervacija> rezervacijeSaId = new ArrayList<Rezervacija>();
-		if(rezervacije.isPresent()) {
+		Optional<List<SamostalnaRezervacija>> samostalnuRezervacije = Optional.of(samostalnaRezervacijaRepository.findAll());
+		if(rezervacije.isPresent() || samostalnuRezervacije.isPresent()) {
 			for (Rezervacija rezervacija1 : rezervacije.get()) {
 				//uzimam sve rezervacije koje imaju isti smestaj
 				if(rezervacija1.getSmestajId()==rezervacija.getSmestajId()) {
@@ -68,6 +73,20 @@ public class RezervacijaService {
 					}
 				}
 			}
+			
+			for (SamostalnaRezervacija rezervacija1 : samostalnuRezervacije.get()) {
+				//uzimam sve rezervacije koje imaju isti smestaj
+				if(rezervacija1.getSmestajId()==rezervacija.getSmestajId()) {
+					if((rezervacija.getOdDatuma().equals(rezervacija1.getDoDatuma()) || rezervacija.getOdDatuma().after(rezervacija1.getDoDatuma()))
+							|| (rezervacija1.getOdDatuma().equals(rezervacija.getDoDatuma()) || rezervacija1.getOdDatuma().after(rezervacija.getDoDatuma()))) {
+						System.out.println("Slobodna rezervacija");
+					}else {
+						zauzeto = 1;
+						break;
+					}
+				}
+			}
+			
 			if(zauzeto==0) {
 				rezervacija.setStatusRezervacije(StatusRezervacije.KREIRANA);
 				rezervacija.setTimestamp(new Date());
@@ -90,6 +109,25 @@ public class RezervacijaService {
 		return null;
 	}
 	
+	/*SmestajiRestTemplate srt = restTemplate.getForObject("http://smestaj-service/smestaj-service/smestaj-korisnik/all", SmestajiRestTemplate.class);
+	List<SmestajKorisnikDTO> smestaji = new ArrayList<SmestajKorisnikDTO>();
+	for (SmestajKorisnikDTO smestajKorisnikDTO : smestaji) {
+		if(smestajKorisnikDTO.getIdSmestaja()==rezervacija.get().getSmestajId()) {
+			Date sadasnjost = new Date();//koji je danas datum
+			Date datumOd = rezervacija.get().getOdDatuma();//datum kada pocinje rezervacija
+			Calendar c = Calendar.getInstance(); 
+			c.setTime(sadasnjost); 
+			c.add(Calendar.DATE, smestajKorisnikDTO.getMaxDanaZaOtkazivanje());//dodamo max dana za otkazivanje na danas
+			sadasnjost = c.getTime();
+			if(sadasnjost.before(datumOd)) {
+				smestajKorisnikDTO.getMaxDanaZaOtkazivanje();
+				rezervacija.get().setStatusRezervacije(StatusRezervacije.OTKAZANA);
+				rezervacijaRepository.save(rezervacija.get());
+				return rezervacija.get();
+			}
+		}
+	}*/
+	
 	public Rezervacija findOne(Long idRezervacije, Long idAgenta) {
 		Rezervacija rez = rezervacijaRepository.getOne(idRezervacije);
 		if (rez!=null) {
@@ -98,10 +136,6 @@ public class RezervacijaService {
 			}
 		}
 		return null;
-	}
-
-	public void remove(Long id) {
-		rezervacijaRepository.deleteById(id);
 	}
 
 	public List<Rezervacija> findAllAfter(Date timestamp, Long idAgenta) {

@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlType;
 public class ValidateTokenResponse {
 	
 	@XmlElement(required = true)
-	protected Boolean valid;
+	private Boolean valid;
 
 	public Boolean getValid() {
 		return valid;

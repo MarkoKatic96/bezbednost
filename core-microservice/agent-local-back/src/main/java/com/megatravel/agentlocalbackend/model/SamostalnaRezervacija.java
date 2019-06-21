@@ -58,17 +58,6 @@ public class SamostalnaRezervacija {
 
     public SamostalnaRezervacija() {
 	}
-    
-    public SamostalnaRezervacija(Long samostalnaRezervacijaId, @NotNull Long smestajId, @NotNull Long vlasnikId, @NotNull Date odDatuma,
-			@NotNull Date doDatuma) {
-		super();
-		this.samostalnaRezervacijaId = samostalnaRezervacijaId;
-		this.smestajId = smestajId;
-		this.vlasnikId = vlasnikId;
-		this.odDatuma = odDatuma;
-		this.doDatuma = doDatuma;
-		this.timestamp = new Date(System.currentTimeMillis());
-	}
 
 	public Date getOdDatuma() {
 		return odDatuma;

@@ -14,7 +14,7 @@ import com.megatravel.agentglobalback.dto.AgentDTO;
 public class EditResponse {
 	
 	@XmlElement(required = true)
-	protected AgentDTO agent;
+	private AgentDTO agent;
 
 	public AgentDTO getAgent() {
 		return agent;

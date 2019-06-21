@@ -7,8 +7,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -17,6 +15,8 @@ import io.webxml.pretragaservice.model.DodatneUsluge;
 import io.webxml.pretragaservice.model.OsnovnaPretraga;
 import io.webxml.pretragaservice.model.Rezervacija;
 import io.webxml.pretragaservice.model.RezervacijeRestTemplate;
+import io.webxml.pretragaservice.model.SamostalnaRezervacija;
+import io.webxml.pretragaservice.model.SamostalnaRezervacijaRestTemplate;
 import io.webxml.pretragaservice.model.SmestajiRestTemplate;
 import io.webxml.pretragaservice.model.StatusRezervacije;
 
@@ -33,6 +33,7 @@ public class OsnovnaPretragaService {
 		List<SmestajKorisnikDTO> listaSmestaja = new ArrayList<SmestajKorisnikDTO>();
 		List<SmestajKorisnikDTO> returnLista = new ArrayList<SmestajKorisnikDTO>();
 		List<Rezervacija> rezervacije = new ArrayList<Rezervacija>();
+		List<SamostalnaRezervacija> samostalne = new ArrayList<SamostalnaRezervacija>();
 		lista = srt.getSmestajiList(); //svi smestaji
 		returnLista.addAll(lista);
 	
@@ -64,6 +65,8 @@ public class OsnovnaPretragaService {
 		if(op.getDatumDolaska()!=null && op.getDatumPolaska()!=null && op.getDatumDolaska().before(op.getDatumPolaska())) {
 			RezervacijeRestTemplate rrt = restTemplate.getForObject("http://reservation-service/reservation-service/rezervacije", RezervacijeRestTemplate.class);
 			rezervacije = rrt.getRezervacijaList();//sve rezervacije
+			SamostalnaRezervacijaRestTemplate srrt = restTemplate.getForObject("http://reservation-service/reservation-service/samostalneRezervacije", SamostalnaRezervacijaRestTemplate.class);
+			samostalne = srrt.getSamostalnaRezervacijaList();//sve rezervacije
 			int zauzeto=0;
 			for (SmestajKorisnikDTO smestaj : returnLista) {
 				for (Rezervacija rezervacija1 : rezervacije) {
@@ -78,6 +81,21 @@ public class OsnovnaPretragaService {
 						}
 					}
 				}
+				
+				for (SamostalnaRezervacija rezervacija1 : samostalne) {
+					//uzimam sve rezervacije koje imaju isti smestaj
+					if(rezervacija1.getSmestajId()==smestaj.getIdSmestaja()) {
+						//op.getDatumDolaska/Polaska je onaj sto se unosi u search, ovaj getDoDatuma/Od je u bazi
+						if((op.getDatumDolaska().equals(rezervacija1.getDoDatuma()) || op.getDatumDolaska().after(rezervacija1.getDoDatuma()))
+								|| (rezervacija1.getOdDatuma().equals(op.getDatumPolaska()) || rezervacija1.getOdDatuma().after(op.getDatumPolaska()))) {
+							System.out.println("SLOBODNO!");
+						}else {
+							zauzeto=1;
+							break;
+						}
+					}
+				}
+				
 				if(zauzeto==0) {
 					listaSmestaja.add(smestaj);
 				}
@@ -88,6 +106,22 @@ public class OsnovnaPretragaService {
 			returnLista.addAll(listaSmestaja);
 			listaSmestaja.clear();
 			
+		}
+		
+		if(op.getUdaljenost()>0) {
+			for (SmestajKorisnikDTO smestaj : returnLista) {
+				BigDecimal bd = new BigDecimal(0);
+				bd = restTemplate.getForObject("http://smestaj-service/smestaj-service/smestaj-korisnik/rastojanje/" + smestaj.getIdSmestaja(), BigDecimal.class);
+				Double big = bd.doubleValue();
+				int bdInt = big.intValue();
+				if(bdInt<=op.getUdaljenost()) {
+					listaSmestaja.add(smestaj);
+				}
+			}
+			
+			returnLista.clear();
+			returnLista.addAll(listaSmestaja);
+			listaSmestaja.clear();
 		}
 		
 		if(op.getTipSmestaja()!=null) {
@@ -135,7 +169,7 @@ public class OsnovnaPretragaService {
 	}
 	
 	public List<SmestajKorisnikDTO> sortSmestaji(List<SmestajKorisnikDTO> returnLista, String sort){
-		if(sort!=null || !sort.equals("")) {
+		if(sort!=null && !sort.equals("")) {
 			if(sort.equals("cena rastuca")) {
 				Collections.sort(returnLista, new Comparator<SmestajKorisnikDTO>() {
 					@Override public int compare(SmestajKorisnikDTO p1, SmestajKorisnikDTO p2) {
@@ -170,7 +204,7 @@ public class OsnovnaPretragaService {
 		return returnLista;
 	}
 	
-	public List<SmestajKorisnikDTO> compareCategoryDescending(List<SmestajKorisnikDTO> lista) {
+	private List<SmestajKorisnikDTO> compareCategoryDescending(List<SmestajKorisnikDTO> lista) {
 		List<SmestajKorisnikDTO> rLista = new ArrayList<SmestajKorisnikDTO>();
 		for (SmestajKorisnikDTO smestajKorisnikDTO : lista) {
 			if(smestajKorisnikDTO.getKategorijaSmestaja().getNaziv().equals("platinum")) {
@@ -195,7 +229,7 @@ public class OsnovnaPretragaService {
 		return rLista;
 	}
 	
-	public List<SmestajKorisnikDTO> compareCategoryAscending(List<SmestajKorisnikDTO> lista) {
+	private List<SmestajKorisnikDTO> compareCategoryAscending(List<SmestajKorisnikDTO> lista) {
 		List<SmestajKorisnikDTO> rLista = new ArrayList<SmestajKorisnikDTO>();
 		for (SmestajKorisnikDTO smestajKorisnikDTO : lista) {
 			if(smestajKorisnikDTO.getKategorijaSmestaja().getNaziv().equals("bronze")) {

@@ -1,7 +1,5 @@
 package com.megatravel.agentglobalback.endpoint;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +8,6 @@ import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.megatravel.agentglobalback.dto.AgentDTO;
 import com.megatravel.agentglobalback.model.Agent;
 import com.megatravel.agentglobalback.model.EditRequest;
@@ -19,8 +16,6 @@ import com.megatravel.agentglobalback.model.GetAgentByEmailRequest;
 import com.megatravel.agentglobalback.model.GetAgentByEmailResponse;
 import com.megatravel.agentglobalback.model.GetAgentRequest;
 import com.megatravel.agentglobalback.model.GetAgentResponse;
-import com.megatravel.agentglobalback.model.LoginRequest;
-import com.megatravel.agentglobalback.model.LoginResponse;
 import com.megatravel.agentglobalback.model.NeaktiviranAgent;
 import com.megatravel.agentglobalback.model.SignUpRequest;
 import com.megatravel.agentglobalback.model.SignUpResponse;
@@ -66,28 +61,6 @@ public class AgentEndpoint {
 		Agent agent = agentService.findByEmail(request.getEmail());
 		response.setAgent(agent);
 		return response;
-	}
-	
-	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "loginRequest")
-	@ResponsePayload
-	public LoginResponse login(@RequestPayload LoginRequest request) {
-		log.info("login " + request.getAgentPrijavaDTO());
-		
-		LoginResponse response = new LoginResponse();
-		Agent agent = agentService.findByEmail(request.getAgentPrijavaDTO().getEmail());
-		if(agent == null) {
-			response.setJwt("");
-			return response;
-		}
-		try {
-			String jwt = agentService.signin(request.getAgentPrijavaDTO().getEmail(), request.getAgentPrijavaDTO().getLozinka());
-			ObjectMapper mapper = new ObjectMapper();
-			response.setJwt(mapper.writeValueAsString(jwt));
-			return response;
-		} catch (Exception e) {
-			response.setJwt("");
-			return response;
-		}
 	}
 	
 	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "editRequest")
@@ -155,13 +128,6 @@ public class AgentEndpoint {
 		response.setNeaktiviranAgent(retValue);
 		
 		return response;
-	}
-	
-	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "signoutRequest")
-	@ResponsePayload
-	public void signout(HttpServletRequest request) {
-		log.info("signout " + request.getAuthType());
-		return;
 	}
 	
 	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "validateTokenRequest")

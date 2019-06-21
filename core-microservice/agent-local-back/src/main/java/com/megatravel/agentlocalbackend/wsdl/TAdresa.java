@@ -47,13 +47,13 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class TAdresa {
 
-    protected long adresaId;
-    protected Object smestaj;
+    private long adresaId;
+    private Object smestaj;
     @XmlElement(required = true)
-    protected String grad;
+    private String grad;
     @XmlElement(required = true)
-    protected String ulica;
-    protected int broj;
+    private String ulica;
+    private int broj;
 
     /**
      * Gets the value of the adresaId property.

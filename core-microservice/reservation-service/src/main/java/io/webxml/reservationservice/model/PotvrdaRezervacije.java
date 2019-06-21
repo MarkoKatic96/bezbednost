@@ -44,18 +44,7 @@ public class PotvrdaRezervacije {
     public PotvrdaRezervacije() {
 	}
     
-    
-    public PotvrdaRezervacije(Long potvrdaRezervacijeId, Long rezervacijaId,
-			StatusRezervacije statusRezervacije) {
-		super();
-		this.potvrdaRezervacijeId = potvrdaRezervacijeId;
-		this.rezervacijaId = rezervacijaId;
-		this.statusRezervacije = statusRezervacije;
-		this.timestamp = new Date(System.currentTimeMillis());
-	}
-
-
-	public Long getPotvrdaRezervacijeId() {
+   	public Long getPotvrdaRezervacijeId() {
 		return potvrdaRezervacijeId;
 	}
 

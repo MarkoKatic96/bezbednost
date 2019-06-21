@@ -89,30 +89,30 @@ import com.megatravel.agentlocalbackend.model.TImage;
 @XmlRootElement(name = "Smestaj")
 public class Smestaj {
 
-    protected long idSmestaja;
+    private long idSmestaja;
     @XmlElement(required = true)
-    protected TAdresa adresa;
+    private TAdresa adresa;
     @XmlElement(required = true)
-    protected BigDecimal latitude;
+    private BigDecimal latitude;
     @XmlElement(required = true)
-    protected BigDecimal longitude;
+    private BigDecimal longitude;
     @XmlElement(required = true)
-    protected TipSmestaja tipSmestaja;
+    private TipSmestaja tipSmestaja;
     @XmlElement(required = true)
-    protected KategorijaSmestaja kategorijaSmestaja;
+    private KategorijaSmestaja kategorijaSmestaja;
     @XmlElement(required = true)
-    protected String opis;
-    protected int maxOsoba;
-    protected int maxDanaZaOtkazivanje;
-    protected float cenaProlece;
-    protected float cenaLeto;
-    protected float cenaJesen;
-    protected float cenaZima;
-    protected Long vlasnik;
+    private String opis;
+    private int maxOsoba;
+    private int maxDanaZaOtkazivanje;
+    private float cenaProlece;
+    private float cenaLeto;
+    private float cenaJesen;
+    private float cenaZima;
+    private Long vlasnik;
     @XmlElement(required = true)
-    protected Set<DodatneUsluge> listaDodatnihUsluga;
+    private Set<DodatneUsluge> listaDodatnihUsluga;
     @XmlElement(required = true)
-    protected Set<TImage> listaSlika;
+    private Set<TImage> listaSlika;
 
     /**
      * Gets the value of the idSmestaja property.

@@ -20,25 +20,25 @@ import javax.validation.constraints.NotNull;
 public class Komentar {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	protected Long idKomentara;
+	private Long idKomentara;
 	
 	@NotNull
-    protected Long idSmestaja;
+    private Long idSmestaja;
 	
 	@NotNull
-    protected Long idRezervacije;
+    private Long idRezervacije;
 	
 	@NotNull
-    protected Long idKorisnika;
+    private Long idKorisnika;
 	
 	@NotNull
-    protected String komentar;
+    private String komentar;
 	
 	@NotNull
-    protected Date timestamp;
+    private Date timestamp;
 	
 	@NotNull
-    protected StatusKomentara status;
+    private StatusKomentara status;
     
     public Komentar() {	}
     

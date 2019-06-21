@@ -12,22 +12,22 @@ import javax.validation.constraints.NotNull;
 public class Ocena {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected Long idOcena;
+    private Long idOcena;
     
     @NotNull
-    protected Long idSmestaj;
+    private Long idSmestaj;
     
     @NotNull
-    protected Long idRezervacija;
+    private Long idRezervacija;
     
     @NotNull
-    protected Long idKorisnik;
+    private Long idKorisnik;
     
     @NotNull
-    protected short ocena;
+    private short ocena;
     
     @NotNull
-    protected Date timestamp;
+    private Date timestamp;
 
     public Ocena() { }
     

@@ -40,7 +40,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "validateTokenResponse")
 public class ValidateTokenResponse {
 
-    protected boolean valid;
+    private boolean valid;
 
     /**
      * Gets the value of the valid property.

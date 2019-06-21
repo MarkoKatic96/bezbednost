@@ -10,6 +10,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +27,7 @@ import com.megatravel.ratingservice.model.StatusRezervacije;
 import com.megatravel.ratingservice.service.KomentarService;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/rating-service/komentar")
 public class KomentarController {
 
@@ -34,12 +37,12 @@ public class KomentarController {
 	@Autowired
 	RestTemplate restTemplate;
 
-	// ovo je samo za korisnike
+	@PreAuthorize("hasAnyRole('ROLE_KORISNIK')")
 	@RequestMapping(value = "/", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Komentar> createKomentar(@RequestBody NoviKomentarDTO noviKomentar){
 		System.out.println("createKomentar()");
 		
-		ResponseEntity<RezervacijaDTO> rezervacijaEntity = restTemplate.getForEntity("http://reservation-service/rezervacija/status/"+noviKomentar.getIdRezervacije(), RezervacijaDTO.class);
+		ResponseEntity<RezervacijaDTO> rezervacijaEntity = restTemplate.getForEntity("http://reservation-service/reservation-service/rezervacija/status/"+noviKomentar.getIdRezervacije(), RezervacijaDTO.class);
 		if (rezervacijaEntity.getStatusCode() != HttpStatus.OK) {
 			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 		}
@@ -51,7 +54,7 @@ public class KomentarController {
 		
 		if (rezervacija.getSmestajId()!=noviKomentar.getIdSmestaja() ||
 				rezervacija.getRezervacijaId()!=noviKomentar.getIdRezervacije() ||
-				rezervacija.getKorisnikId()!=noviKomentar.getIdRezervacije() || rezervacija.getStatusRezervacije()!=StatusRezervacije.POTVRDJENA) {
+				rezervacija.getKorisnikId()!=noviKomentar.getIdKorisnika() || rezervacija.getStatusRezervacije()!=StatusRezervacije.POTVRDJENA) {
 			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
 		}
 		
@@ -60,7 +63,7 @@ public class KomentarController {
 		return new ResponseEntity<Komentar>(komentar, HttpStatus.CREATED);
 	}
 	
-	// ovo je samo za admine
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN')")
 	@RequestMapping(value = "/{id}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Komentar> blokirajObjaviKomentar(@RequestBody StatusKomentara statusKomentara, @PathVariable Long id){
 		System.out.println("blokirajObjaviKomentar(" + statusKomentara + ")");
@@ -77,7 +80,7 @@ public class KomentarController {
 		return new ResponseEntity<Komentar>(komentar, HttpStatus.OK);
 	}
 	
-	//samo za admina
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN')")
 	@RequestMapping(value = "/neprocitane", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<Komentar>> getNeobjavljeniKomentari(Pageable page) {
 		System.out.println("getNeobjavljeniKomentari()");
@@ -89,6 +92,13 @@ public class KomentarController {
 		headers.add("X-Total-Count", String.valueOf(komentariTotal));
 
 		return new ResponseEntity<>(neobjavljeniKomentari.getContent(), headers, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/all", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<Komentar>> getAllKomentari() {
+		
+		List<Komentar> allKomentari = komentarService.findAllObjavljenji();
+		return new ResponseEntity<List<Komentar>>(allKomentari, HttpStatus.OK);
 	}
 	
 }

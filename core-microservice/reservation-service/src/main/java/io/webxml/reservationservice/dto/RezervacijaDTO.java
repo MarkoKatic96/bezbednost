@@ -16,21 +16,7 @@ public class RezervacijaDTO {
     private StatusRezervacije statusRezervacije;
     private Date timestamp;
     private Date updateTimestamp;
-	
-    public RezervacijaDTO(Long rezervacijaId, Long smestajId, Long vlasnikId, Long korisnikId, Date odDatuma, Date doDatuma,
-			StatusRezervacije statusRezervacije, Date timestamp, Date updateTimestamp) {
-		super();
-		this.rezervacijaId = rezervacijaId;
-		this.smestajId = smestajId;
-		this.korisnikId = korisnikId;
-		this.vlasnikId = vlasnikId;
-		this.odDatuma = odDatuma;
-		this.doDatuma = doDatuma;
-		this.statusRezervacije = statusRezervacije;
-		this.timestamp = timestamp;
-		this.updateTimestamp = updateTimestamp;
-	}
-    
+
     public RezervacijaDTO() {
 	}
 

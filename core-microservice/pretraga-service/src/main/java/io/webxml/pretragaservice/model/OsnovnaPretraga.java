@@ -64,26 +64,14 @@ public class OsnovnaPretraga {
     @XmlElement(required = true)
     private Long kategorijaSmestaja;
     private List<Long> dodatneUsluge;
+    private int udaljenost;
     private String sort;
     
     public OsnovnaPretraga() {
 
   	}
-    
-    public OsnovnaPretraga(String mesto, Date datumDolaska, Date datumPolaska, float cena, int brojOsoba, String tipSmestaja, Long kategorijaSmestaja, List<Long> dodatneUsluge, String sort) {
-		super();
-		this.mesto = mesto;
-		this.datumDolaska = datumDolaska;
-		this.datumPolaska = datumPolaska;
-		this.cena = cena;
-		this.brojOsoba = brojOsoba;
-		this.tipSmestaja = tipSmestaja;
-		this.kategorijaSmestaja = kategorijaSmestaja;
-		this.dodatneUsluge = dodatneUsluge;
-		this.sort = sort;
-	}
 
-	/**
+    /**
      * Gets the value of the mesto property.
      * 
      * @return
@@ -217,6 +205,14 @@ public class OsnovnaPretraga {
 
 	public void setSort(String sort) {
 		this.sort = sort;
+	}
+
+	public int getUdaljenost() {
+		return udaljenost;
+	}
+
+	public void setUdaljenost(int udaljenost) {
+		this.udaljenost = udaljenost;
 	}
     
     

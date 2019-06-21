@@ -16,19 +16,19 @@ import javax.xml.bind.annotation.XmlType;
 public class AgentRegistracijaDTO {
 
 	@XmlElement(namespace="https://megatravel.com/email")
-    protected String email;
+    private String email;
 	
 	@XmlElement(namespace="https://megatravel.com/idAgenta")
-    protected Long idAgenta;
+    private Long idAgenta;
 	
 	@XmlElement(namespace="https://megatravel.com/ime")
-    protected String ime;
+    private String ime;
 	
 	@XmlElement(namespace="https://megatravel.com/poslovniMaticniBroj")
-    protected Long poslovniMaticniBroj;
+    private Long poslovniMaticniBroj;
 	
 	@XmlElement(namespace="https://megatravel.com/prezime")
-    protected String prezime;
+    private String prezime;
     	
     public AgentRegistracijaDTO() {
 	

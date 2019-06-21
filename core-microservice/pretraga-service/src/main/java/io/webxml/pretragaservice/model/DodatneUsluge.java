@@ -8,7 +8,6 @@
 
 package io.webxml.pretragaservice.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
@@ -26,13 +25,6 @@ public class DodatneUsluge {
 	
 	public DodatneUsluge() {
 	
-	}
-	
-	public DodatneUsluge(Long id, @NotNull String nazivDodatneUsluge) {
-		super();
-		this.idDodatneUsluge = id;
-		this.nazivDodatneUsluge = nazivDodatneUsluge;
-		listaSmestaja = new ArrayList<>();
 	}
 
 	public Long getIdDodatneUsluge() {

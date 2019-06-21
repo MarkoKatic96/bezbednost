@@ -56,7 +56,7 @@ import javax.xml.bind.annotation.XmlType;
 public class SignUpResponse {
 
     @XmlElement(required = true)
-    protected SignUpResponse.NeaktiviranAgent neaktiviranAgent;
+    private SignUpResponse.NeaktiviranAgent neaktiviranAgent;
 
     /**
      * Gets the value of the neaktiviranAgent property.
@@ -116,14 +116,14 @@ public class SignUpResponse {
     })
     public static class NeaktiviranAgent {
 
-        protected long idNeaktiviranogAgenta;
+        private long idNeaktiviranogAgenta;
         @XmlElement(required = true)
-        protected String ime;
+        private String ime;
         @XmlElement(required = true)
-        protected String prezime;
-        protected long poslovniMaticniBroj;
+        private String prezime;
+        private long poslovniMaticniBroj;
         @XmlElement(required = true)
-        protected String email;
+        private String email;
 
         /**
          * Gets the value of the idNeaktiviranogAgenta property.

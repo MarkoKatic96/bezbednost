@@ -5,11 +5,11 @@ import lombok.Data;
 @Data
 public class RegisterDTO 
 {
-    protected String email;
-    protected String ime;
-    protected String prezime;
-    protected String lozinka;
-    protected String potvrdaLozinke;
+    private String email;
+    private String ime;
+    private String prezime;
+    private String lozinka;
+    private String potvrdaLozinke;
 	public String getEmail() {
 		return email;
 	}

@@ -69,10 +69,6 @@ public class SmestajService {
 		return smestajRepository.findAllFromMe(idVlasnika, page);
 	}
 	
-	public Page<Smestaj> getAllInGrad(String grad,Pageable page) {
-		return smestajRepository.getAllInGrad(grad, page);
-	}
-	
 	public Smestaj save(Smestaj smestaj) {
 		return smestajRepository.save(smestaj);
 	}
@@ -83,14 +79,6 @@ public class SmestajService {
 
 	public Page<Smestaj> getSmestaji(Pageable page) {
 		return smestajRepository.findAll(page);
-	}
-
-	public Page<Smestaj> getAllOfTip(Long tip, Pageable page) {
-		return smestajRepository.getAllOfTip(tip,page);
-	}
-	
-	public Page<Smestaj> getAllOfKategorija(Long kategorija, Pageable page) {
-		return smestajRepository.getAllOfKategorija(kategorija, page);
 	}
 	
 	public List<TipSmestaja> getAllTipove() {
@@ -105,7 +93,6 @@ public class SmestajService {
 		return dodatnaUslugaRepository.getAll();
 	}
 	
-	//ovo mi je samo za testiranje ostavi ovako ne zasticeno kasnije cemo zastititi
 	public SmestajKorisnikDTO dodajUslugu(Long uslugaId, Long smestajId) {
 		Optional<DodatneUsluge> usluga = dodatnaUslugaRepository.findById(uslugaId);
 		Optional<Smestaj> smestaj = smestajRepository.findById(smestajId);

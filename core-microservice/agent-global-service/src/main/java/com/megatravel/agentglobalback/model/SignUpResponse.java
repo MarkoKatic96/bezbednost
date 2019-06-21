@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlType;
 public class SignUpResponse {
 	
 	@XmlElement(required = true)
-	protected NeaktiviranAgent neaktiviranAgent;
+	private NeaktiviranAgent neaktiviranAgent;
 
 	public NeaktiviranAgent getNeaktiviranAgent() {
 		return neaktiviranAgent;

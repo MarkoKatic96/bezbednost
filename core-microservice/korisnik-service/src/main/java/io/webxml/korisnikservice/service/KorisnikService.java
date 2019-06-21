@@ -7,9 +7,6 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.webxml.korisnikservice.jwt.JwtTokenUtils;
 import io.webxml.korisnikservice.model.Korisnik;
 import io.webxml.korisnikservice.repository.KorisnikRepository;
 
@@ -18,10 +15,7 @@ public class KorisnikService {
 	
 	@Autowired
 	private KorisnikRepository korisnikRepository;
-	
-	@Autowired
-	private JwtTokenUtils jwtTokenProvider;
-	
+
 	public List<Korisnik> getAllKorisnici(){
 		List<Korisnik> returnList = korisnikRepository.findAllKorisnici();
 		return returnList;
@@ -49,27 +43,6 @@ public class KorisnikService {
 			korisnik.setRegistrovan(false);
 			return korisnikRepository.save(korisnik);
 		}
-		return null;
-	}
-	
-	public String login(String email, String lozinka) {
-		Korisnik k = korisnikRepository.nadjiKorisnikaPoEmail(email);
-		if(k==null) {
-			return null;
-		}
-		try {
-			if(k.getLozinka().equals(lozinka)) {
-				if (k.isBlokiran()) {
-					return null;
-				}
-				String jwt = jwtTokenProvider.createToken(email);
-				ObjectMapper mapper = new ObjectMapper();
-				return mapper.writeValueAsString(jwt);
-			}
-		}catch (Exception e) {
-			return null;
-		}
-		
 		return null;
 	}
 	

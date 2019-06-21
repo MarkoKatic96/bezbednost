@@ -52,17 +52,17 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "Samostalna_rezervacija")
 public class SamostalnaRezervacija {
 
-    protected Long samostalnaRezervacijaId;
-    protected Long smestajId;
+    private Long samostalnaRezervacijaId;
+    private Long smestajId;
     @XmlElement(required = true)
     @XmlSchemaType(name = "dateTime")
-    protected Date odDatuma;
+    private Date odDatuma;
     @XmlElement(required = true)
     @XmlSchemaType(name = "dateTime")
-    protected Date doDatuma;
+    private Date doDatuma;
     @XmlElement(required = true)
     @XmlSchemaType(name = "dateTime")
-    protected Date timestamp;
+    private Date timestamp;
 
     /**
      * Gets the value of the samostalnaRezervacijaId property.

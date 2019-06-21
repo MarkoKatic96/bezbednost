@@ -8,11 +8,6 @@ public class LoginUser {
 	
 	public LoginUser() {}
 
-	public LoginUser(String email, String lozinka) {
-		this.email = email;
-		this.lozinka = lozinka;
-	}
-
 	public String getEmail() {
 		return email;
 	}

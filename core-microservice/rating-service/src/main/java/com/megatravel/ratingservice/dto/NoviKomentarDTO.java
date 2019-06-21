@@ -2,19 +2,11 @@ package com.megatravel.ratingservice.dto;
 
 public class NoviKomentarDTO {
 
-	protected Long idSmestaja;
-    protected Long idRezervacije;
-    protected Long idKorisnika;
-    protected String komentar;
-	
-    public NoviKomentarDTO(Long idSmestaja, Long idRezervacije, Long idKorisnika, String komentar) {
-		super();
-		this.idSmestaja = idSmestaja;
-		this.idRezervacije = idRezervacije;
-		this.idKorisnika = idKorisnika;
-		this.komentar = komentar;
-	}
-    
+	private Long idSmestaja;
+    private Long idRezervacije;
+    private Long idKorisnika;
+    private String komentar;
+	  
     public NoviKomentarDTO() {	}
 
 	public Long getIdSmestaja() {

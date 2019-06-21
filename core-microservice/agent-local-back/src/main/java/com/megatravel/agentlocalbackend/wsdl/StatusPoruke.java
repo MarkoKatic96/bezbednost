@@ -34,12 +34,8 @@ public enum StatusPoruke {
     POSLATA,
     PROCITANA;
 
-    public String value() {
-        return name();
-    }
+    
 
-    public static StatusPoruke fromValue(String v) {
-        return valueOf(v);
-    }
+    
 
 }

@@ -64,18 +64,6 @@ public class Agent {
 		super();
 	}
 
-	public Agent(Long idAgenta, @NotNull String ime, @NotNull String prezime, @NotNull Long poslovniMaticniBroj,
-			@NotNull String email, @NotNull String lozinka) {
-		super();
-		this.idAgenta = idAgenta;
-		this.ime = ime;
-		this.prezime = prezime;
-		this.poslovniMaticniBroj = poslovniMaticniBroj;
-		this.datumClanstva = new Date(System.currentTimeMillis());
-		this.email = email;
-		this.lozinka = lozinka;
-	}
-
 	/**
      * Gets the value of the idAgenta property.
      * 

@@ -2,7 +2,6 @@ package com.megatravel.agentlocalbackend.dto;
 
 import java.util.Date;
 
-import com.megatravel.agentlocalbackend.model.Rezervacija;
 import com.megatravel.agentlocalbackend.model.StatusRezervacije;
 
 public class RezervacijaDTO {
@@ -16,36 +15,9 @@ public class RezervacijaDTO {
     private StatusRezervacije statusRezervacije;
     private Date timestamp;
     private Date updateTimestamp;
-	
-    public RezervacijaDTO(Long rezervacijaId, Long smestajId, Long vlasnikId, Long korisnikId, Date odDatuma, Date doDatuma,
-			StatusRezervacije statusRezervacije, Date timestamp, Date updateTimestamp) {
-		super();
-		this.rezervacijaId = rezervacijaId;
-		this.smestajId = smestajId;
-		this.korisnikId = korisnikId;
-		this.vlasnikId = vlasnikId;
-		this.odDatuma = odDatuma;
-		this.doDatuma = doDatuma;
-		this.statusRezervacije = statusRezervacije;
-		this.timestamp = timestamp;
-		this.updateTimestamp = updateTimestamp;
-	}
     
     public RezervacijaDTO() {
-	}
-
-	public RezervacijaDTO(Rezervacija rez) {
-		super();
-		this.rezervacijaId = rez.getRezervacijaId();
-		this.smestajId = rez.getSmestajId();
-		this.korisnikId = rez.getKorisnikId();
-		this.vlasnikId = rez.getVlasnikId();
-		this.odDatuma = rez.getOdDatuma();
-		this.doDatuma = rez.getDoDatuma();
-		this.statusRezervacije = rez.getStatusRezervacije();
-		this.timestamp = rez.getTimestamp();
-		this.updateTimestamp = rez.getUpdateTimestamp();
-	}
+    }
 
 	public Date getUpdateTimestamp() {
 		return updateTimestamp;

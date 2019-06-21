@@ -14,7 +14,7 @@ import com.megatravel.agentglobalback.dto.AgentRegistracijaDTO;
 public class SignUpRequest {
 
 	@XmlElement(required = true)
-	protected AgentRegistracijaDTO agentRegistracijaDTO;
+	private AgentRegistracijaDTO agentRegistracijaDTO;
 
 	public AgentRegistracijaDTO getAgentRegistracijaDTO() {
 		return agentRegistracijaDTO;

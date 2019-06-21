@@ -41,16 +41,6 @@ public class NeaktiviranAgent {
 		super();
 	}
 
-	public NeaktiviranAgent(Long idNeaktiviranogAgenta, @NotNull String ime, @NotNull String prezime,
-			@NotNull Long poslovniMaticniBroj, @NotNull String email) {
-		super();
-		this.idNeaktiviranogAgenta = idNeaktiviranogAgenta;
-		this.ime = ime;
-		this.prezime = prezime;
-		this.poslovniMaticniBroj = poslovniMaticniBroj;
-		this.email = email;
-	}
-
 	public Long getIdNeaktiviranogAgenta() {
 		return idNeaktiviranogAgenta;
 	}

@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlType;
 public class GetAgentRequest {
 
 	@XmlElement(required = true)
-	protected Long id;
+	private Long id;
 	
 	public Long getId() {
 		return id;

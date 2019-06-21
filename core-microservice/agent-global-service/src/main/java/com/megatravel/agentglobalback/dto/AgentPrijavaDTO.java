@@ -12,17 +12,11 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class AgentPrijavaDTO {
 	@XmlElement(namespace="https://megatravel.com/email")
-    protected String email;
+    private String email;
 	@XmlElement(namespace="https://megatravel.com/lozinka")
-    protected String lozinka;
+    private String lozinka;
 
 	public AgentPrijavaDTO() {
-	}
-
-	public AgentPrijavaDTO(String email, String lozinka) {
-		super();
-		this.email = email;
-		this.lozinka = lozinka;
 	}
 
 	public String getEmail() {

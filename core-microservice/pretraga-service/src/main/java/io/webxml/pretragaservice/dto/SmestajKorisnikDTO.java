@@ -1,19 +1,14 @@
 package io.webxml.pretragaservice.dto;
 
 import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 import io.webxml.pretragaservice.model.DodatneUsluge;
 import io.webxml.pretragaservice.model.KategorijaSmestaja;
-import io.webxml.pretragaservice.model.Smestaj;
 import io.webxml.pretragaservice.model.TAdresa;
 import io.webxml.pretragaservice.model.TImage;
 import io.webxml.pretragaservice.model.TipSmestaja;
-
-
 
 public class SmestajKorisnikDTO {
 	
@@ -34,42 +29,7 @@ public class SmestajKorisnikDTO {
     public SmestajKorisnikDTO() {
 	}
 
-    public SmestajKorisnikDTO(Smestaj s) {
-		super();
-		this.idSmestaja = s.getIdSmestaja();
-		this.adresa = s.getAdresa();
-		this.latitude = s.getLatitude();
-		this.longitude = s.getLongitude();
-		this.tipSmestaja = s.getTipSmestaja();
-		this.kategorijaSmestaja = s.getKategorijaSmestaja();
-		this.opis = s.getOpis();
-		this.maxOsoba = s.getMaxOsoba();
-		this.maxDanaZaOtkazivanje = s.getMaxDanaZaOtkazivanje();
-		this.cena = getTrenutnaCena(s.getCenaProlece(), s.getCenaLeto(), s.getCenaJesen(), s.getCenaZima());
-		this.vlasnik = s.getVlasnik();
-		this.listaDodatnihUsluga = s.getListaDodatnihUsluga();
-		this.listaSlika = s.getListaSlika();
-	}
- 
-	private float getTrenutnaCena(float cenaProlece, float cenaLeto, float cenaJesen, float cenaZima) {
-		Date now = new Date(System.currentTimeMillis());
-		int dayOfYear = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
-		System.out.println("- now: " + now + "\n\t- dan u godini: " + dayOfYear);
-		
-		//zima
-		if (dayOfYear<90 || dayOfYear>334) {
-			return cenaZima;
-		}
-		if (dayOfYear<181) {
-			return cenaProlece;
-		}
-		if (dayOfYear<244) {
-			return cenaLeto;
-		}
-		return cenaJesen;
-	}
-
-	public Long getIdSmestaja() {
+    public Long getIdSmestaja() {
 		return idSmestaja;
 	}
 

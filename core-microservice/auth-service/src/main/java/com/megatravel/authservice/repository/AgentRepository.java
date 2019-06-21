@@ -13,4 +13,7 @@ public interface AgentRepository extends JpaRepository<Agent, Long>
 {
 	@Query(value= "SELECT a FROM Agent a WHERE (a.email = ?1 AND a.lozinka = ?2)")
 	public Agent findByEmailPassword(String email, String lozinka);
+	
+	@Query(value= "SELECT a FROM Agent a WHERE a.email = ?1")
+	public Agent findByEmail(String email);
 }

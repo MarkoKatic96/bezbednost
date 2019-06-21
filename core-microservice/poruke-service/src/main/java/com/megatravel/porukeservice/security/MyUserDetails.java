@@ -8,74 +8,37 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.megatravel.porukeservice.model.Agent;
-import com.megatravel.porukeservice.model.Korisnik;
-
 @Service
-public class MyUserDetails implements UserDetailsService{
-	
-	@Autowired
-	private RestTemplate restTemplate;
-	
-	@Override
-	public org.springframework.security.core.userdetails.UserDetails loadUserByUsername(String email) throws UsernameNotFoundException{
-		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("http://korisnik-service/korisnik/"+email, Korisnik.class);
-		String rola = "";
-		String pass = "";
-		if (korisnikEntity.getStatusCode() == HttpStatus.OK) {
-			Korisnik korisnik = korisnikEntity.getBody();
-			if (korisnik != null) {
-				rola = "ROLA_KORISNIK";
-				pass = korisnik.getLozinka();
-			}
-		} else {
-			ResponseEntity<Agent> agent = restTemplate.getForEntity("http://agent-global-service/agent/e/" + email, Agent.class);
-			if (agent.getStatusCode() == HttpStatus.OK) {	
-				if (agent.getBody() != null) {
-					rola = "ROLA_AGENT";
-					pass = agent.getBody().getLozinka();
-				}
-			}
-		}
+public class MyUserDetails implements UserDetailsService {
 
+	@Autowired
+    private RestTemplate authService;
+
+	//izvuce iz baze usere koji nam trebaju i automatksi se aktivira
+	@Override
+	public UserDetails loadUserByUsername(String token) throws UsernameNotFoundException {
+		ResponseEntity<UserDAO> user = null;
+		
+		try {
+			user = authService.postForEntity("http://auth-service/auth/login/role", token, UserDAO.class);
+		} catch (Exception e) {
+			return null;
+		}
+		if (user.getStatusCode() != HttpStatus.OK) {
+			return null;
+		}
 		
 		List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-		grantedAuthorities.add(new SimpleGrantedAuthority(rola));
-		
-		//novi ulogovani korisnik sa svojim autoritetima
-		return new org.springframework.security.core.userdetails.User(email, pass, true, true, true, true, grantedAuthorities);	
+		grantedAuthorities.add(new SimpleGrantedAuthority(user.getBody().getRola()));
+
+		return new org.springframework.security.core.userdetails.User(user.getBody().getEmail(), user.getBody().getLozinka(), true, true, true,
+				true, grantedAuthorities);
 	}
-	
-	   //vraca sve servise(privilegije) koji su dostupni roli koju ulogovani korisnik ima
-  /* private Collection<? extends GrantedAuthority> getAuthorities(Collection<Rola> roles) {		  
-	   return getGrantedAuthorities(getPrivileges(roles));
-   }
-   
-   //nalazi sve privilegije(servise) svake prosledjene role
-  private List<String> getPrivileges(Collection<Rola> roles) {
-	   
-       List<String> privileges = new ArrayList<>();
-       List<Servis> collection = new ArrayList<>();
-       for (Rola role : roles) {
-           collection.addAll(role.getServisi());
-       }
-       for (Servis item : collection) {
-           privileges.add(item.getNaziv());
-       }
-       return privileges;
-   }
-   
-   private List<GrantedAuthority> getGrantedAuthorities(List<String> privileges) {
-       List<GrantedAuthority> authorities = new ArrayList<>();
-       for (String privilege : privileges) {
-           authorities.add(new SimpleGrantedAuthority(privilege));
-       }
-       return authorities;
-   }*/
 
 }

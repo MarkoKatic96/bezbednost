@@ -61,7 +61,7 @@ import javax.xml.bind.annotation.XmlType;
 public class GetAgentByEmailResponse {
 
     @XmlElement(required = true)
-    protected GetAgentByEmailResponse.Agent agent;
+    private GetAgentByEmailResponse.Agent agent;
 
     /**
      * Gets the value of the agent property.
@@ -125,19 +125,19 @@ public class GetAgentByEmailResponse {
     })
     public static class Agent {
 
-        protected long idAgenta;
+        private long idAgenta;
         @XmlElement(required = true)
-        protected String ime;
+        private String ime;
         @XmlElement(required = true)
-        protected String prezime;
-        protected Long poslovniMaticniBroj;
+        private String prezime;
+        private Long poslovniMaticniBroj;
         @XmlElement(required = true)
         @XmlSchemaType(name = "date")
-        protected Date datumClanstva;
+        private Date datumClanstva;
         @XmlElement(required = true)
-        protected String email;
+        private String email;
         @XmlElement(required = true)
-        protected String lozinka;
+        private String lozinka;
 
         /**
          * Gets the value of the idAgenta property.

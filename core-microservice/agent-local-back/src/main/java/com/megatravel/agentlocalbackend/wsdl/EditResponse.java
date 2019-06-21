@@ -14,7 +14,7 @@ import javax.xml.bind.annotation.XmlType;
 public class EditResponse {
 	
 	@XmlElement(required = true)
-	protected AgentDTO agent;
+	private AgentDTO agent;
 
 	public AgentDTO getAgent() {
 		return agent;

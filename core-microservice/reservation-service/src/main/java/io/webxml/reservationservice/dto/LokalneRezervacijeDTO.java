@@ -17,21 +17,6 @@ public class LokalneRezervacijeDTO {
     private StatusRezervacije statusRezervacije;
     private Date timestamp;
     private Date updateTimestamp;
-	
-    public LokalneRezervacijeDTO(Long globalniId, Long lokalniId, Long smestajId, Long vlasnikId, Long korisnikId, Date odDatuma, Date doDatuma,
-			StatusRezervacije statusRezervacije, Date timestamp, Date updateTimestamp) {
-		super();
-		this.globalniId = globalniId;
-		this.lokalniId = lokalniId;
-		this.smestajId = smestajId;
-		this.korisnikId = korisnikId;
-		this.vlasnikId = vlasnikId;
-		this.odDatuma = odDatuma;
-		this.doDatuma = doDatuma;
-		this.statusRezervacije = statusRezervacije;
-		this.timestamp = timestamp;
-		this.updateTimestamp = updateTimestamp;
-	}
     
     public LokalneRezervacijeDTO() {
 	}

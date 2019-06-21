@@ -8,10 +8,13 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,11 +24,11 @@ import org.springframework.web.client.RestTemplate;
 
 import com.megatravel.porukeservice.dto.NovaPorukaDTO;
 import com.megatravel.porukeservice.dto.PorukaDTO;
-import com.megatravel.porukeservice.jwt.JwtTokenUtils;
 import com.megatravel.porukeservice.model.Agent;
 import com.megatravel.porukeservice.model.Poruka;
 import com.megatravel.porukeservice.model.StatusPoruke;
 import com.megatravel.porukeservice.model.TipOsobe;
+import com.megatravel.porukeservice.security.JwtTokenUtils;
 import com.megatravel.porukeservice.service.PorukeService;
 
 @RestController
@@ -41,6 +44,7 @@ public class PorukeAgentController {
 	@Autowired
 	RestTemplate restTemplate;
 	
+	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "/{userId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<PorukaDTO>> getPorukeWithKorisnik(@PathVariable Long userId, Pageable page, HttpServletRequest req) {
 		System.out.println("getPorukeWithKorisnik()");
@@ -73,6 +77,7 @@ public class PorukeAgentController {
 		return new ResponseEntity<>(retVal, HttpStatus.OK);
 	}
 	
+	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "/neprocitane", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<PorukaDTO>> getNeprocitanePoruke(Pageable page, HttpServletRequest req) {
 		System.out.println("getNeprocitanePoruke()");
@@ -90,7 +95,7 @@ public class PorukeAgentController {
 			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 		}
 		
-		Page<Poruka> poruke = porukeService.findAllNeprocitane(agent.getIdAgenta(), page);
+		Page<Poruka> poruke = porukeService.findAllNeprocitaneZaAgenta(agent.getIdAgenta(), page);
 		
 		HttpHeaders headers = new HttpHeaders();
 		long porukeTotal = poruke.getTotalElements();
@@ -105,6 +110,7 @@ public class PorukeAgentController {
 		return new ResponseEntity<>(retVal, HttpStatus.OK);
 	}
 	
+	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "/{userId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Void> setProcitanePorukeFromUser(@PathVariable Long userId, HttpServletRequest req) {
 		System.out.println("setProcitanePorukeFromUser()");
@@ -112,7 +118,14 @@ public class PorukeAgentController {
 		String token = jwtTokenUtils.resolveToken(req);
 		String email = jwtTokenUtils.getUsername(token);
 		
-		ResponseEntity<Agent> agentEntity = restTemplate.getForEntity("http://agent-global-service/agent/e/"+email, Agent.class);
+		String getAgentUrl = "http://agent-global-service/agent-global-service/agent/e/"+email;
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", "Bearer "+token);
+
+		HttpEntity<String> entity = new HttpEntity<String>(null,headers);
+		ResponseEntity<Agent> agentEntity = restTemplate.exchange(getAgentUrl, HttpMethod.POST, entity, Agent.class);
+		
 		if (agentEntity.getStatusCode() != HttpStatus.OK) {
 			return null;
 		}
@@ -132,6 +145,7 @@ public class PorukeAgentController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
+	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<PorukaDTO> sendPoruka(@RequestBody NovaPorukaDTO novaPoruka, HttpServletRequest req) {
 		System.out.println("sendPoruka()");
@@ -154,10 +168,4 @@ public class PorukeAgentController {
 		
 		return new ResponseEntity<>(new PorukaDTO(retVal), HttpStatus.CREATED);
 	}
-	
-	
-	
-
-	
-	
 }

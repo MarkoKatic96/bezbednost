@@ -1,25 +1,20 @@
 package com.megatravel.agentglobalback.controller;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.megatravel.agentglobalback.dto.AgentDTO;
-import com.megatravel.agentglobalback.dto.AgentPrijavaDTO;
 import com.megatravel.agentglobalback.dto.AgentRegistracijaDTO;
-import com.megatravel.agentglobalback.jwt.JwtTokenUtils;
 import com.megatravel.agentglobalback.model.Agent;
 import com.megatravel.agentglobalback.model.NeaktiviranAgent;
-import com.megatravel.agentglobalback.model.RevokedTokens;
-import com.megatravel.agentglobalback.repository.RevokedTokensRepository;
+import com.megatravel.agentglobalback.security.JwtTokenUtils;
 import com.megatravel.agentglobalback.service.AgentService;
 import com.megatravel.agentglobalback.service.NeaktiviranAgentService;
 
@@ -35,10 +30,8 @@ public class AgentController {
 	
 	@Autowired
 	JwtTokenUtils jwtTokenUtils;
-	
-	@Autowired
-	private RevokedTokensRepository revokedTokensRepository;
 
+	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public ResponseEntity<AgentDTO> getAgent(@PathVariable Long id) {
 		System.out.println("getAgent(" + id + ")");
@@ -51,6 +44,7 @@ public class AgentController {
 		return new ResponseEntity<>(new AgentDTO(agent), HttpStatus.OK);
 	}
 	
+	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "/e/{email}", method = RequestMethod.GET)
 	public ResponseEntity<Agent> getAgentByEmail(@PathVariable String email) {
 		System.out.println("getAgentByEmail(" + email + ")");
@@ -62,25 +56,8 @@ public class AgentController {
 
 		return new ResponseEntity<>(agent, HttpStatus.OK);
 	}
-	
-	@RequestMapping(value = "/login", method = RequestMethod.POST, consumes = "application/json")
-	public ResponseEntity<String> login(@RequestBody AgentPrijavaDTO agentPrijavaDTO) {
-		System.out.println("login(" + agentPrijavaDTO.getEmail() + "," + agentPrijavaDTO.getLozinka() + ")");
-		
-		Agent agent = agentService.findByEmail(agentPrijavaDTO.getEmail());
-		if(agent == null) {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		}
 
-		try {
-			String jwt = agentService.signin(agentPrijavaDTO.getEmail(), agentPrijavaDTO.getLozinka());
-			ObjectMapper mapper = new ObjectMapper();
-			return new ResponseEntity<>(mapper.writeValueAsString(jwt), HttpStatus.OK);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		}
-	}
-	
+	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "/edit", method = RequestMethod.POST, consumes = "application/json")
 	public ResponseEntity<AgentDTO> edit(@RequestBody Agent noviAgent) {
 		System.out.println("edit(" + noviAgent.getEmail() + "," + noviAgent.getLozinka() + ")");
@@ -128,39 +105,11 @@ public class AgentController {
 		return new ResponseEntity<>(retValue, HttpStatus.CREATED);
 	}
 	
-	@RequestMapping(value = "/signout", method = RequestMethod.GET)
-	public ResponseEntity<Void> signout(HttpServletRequest req) {
-		System.out.println("signout()");
-		
-		String token = jwtTokenUtils.resolveToken(req);
-		String email = jwtTokenUtils.getUsername(token);
-		
-		Agent agent = agentService.findByEmail(email);
-		if (agent == null) {			
-			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-		}
-		
-		revokedTokensRepository.save(new RevokedTokens(null, token));
-		
-		return new ResponseEntity<>(HttpStatus.OK);
-	}
-	
+	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "/token", method = RequestMethod.POST)
 	public ResponseEntity<Boolean> validateToken(@RequestBody String token) {
 		System.out.println("validateToken()");
-	
-		if (revokedTokensRepository.findOne(token) != null) {
-			return new ResponseEntity<Boolean>(new Boolean(false), HttpStatus.OK);
-		}
 		
 		return new ResponseEntity<>(new Boolean(true), HttpStatus.OK);
-	}
-	
-	@RequestMapping(value = "/ping", method = RequestMethod.GET)
-	public ResponseEntity<String> ping(HttpServletRequest req) {
-		System.out.println("ping()");
-	
-		return new ResponseEntity<>("You reached agent global back" + agentService.findOne(1L).getEmail(), HttpStatus.OK);
-	}
-	
+	}	
 }

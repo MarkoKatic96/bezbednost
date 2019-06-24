@@ -22,6 +22,8 @@ import com.megatravel.authservice.repository.KorisnikRepository;
 import com.megatravel.authservice.repository.RevokedTokensRepository;
 import com.megatravel.authservice.repository.RolaRepository;
 import com.megatravel.authservice.security.JwtTokenUtil;
+import com.megatravel.authservice.validators.LoginUserValidator;
+import com.megatravel.authservice.validators.Valid;
 
 @RestController
 @RequestMapping("/auth/login")
@@ -49,7 +51,12 @@ public class LoginController {
     public ResponseEntity<String> loginAdmin(@RequestBody LoginUser loginUser) throws Exception{
     	System.out.println("neki dobar token za admina");
 
-    	final Admin user = adminRepository.findByEmailPassword(loginUser.getEmail(), loginUser.getLozinka());
+    	Valid v = new LoginUserValidator().validate(loginUser);
+		if (!v.isValid()) {
+			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
+		}
+    	
+    	final Admin user = adminRepository.findByEmailPassword(loginUser.getEmail().trim(), loginUser.getLozinka().trim());
         if (user==null) {
         	return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
         }
@@ -64,11 +71,12 @@ public class LoginController {
     public ResponseEntity<String> loginAgent(@RequestBody LoginUser loginUser) throws Exception{
     	System.out.println("neki dobar token za agenta");
 
-    	//final Authentication authentication = authenticationManager.authenticate(
-        	//	new UsernamePasswordAuthenticationToken(loginUser.getEmail(),loginUser.getLozinka()));
-        
-        //SecurityContextHolder.getContext().setAuthentication(authentication);
-    	final Agent user = agentRepository.findByEmailPassword(loginUser.getEmail(), loginUser.getLozinka());
+    	Valid v = new LoginUserValidator().validate(loginUser);
+		if (!v.isValid()) {
+			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
+		}
+		
+		final Agent user = agentRepository.findByEmailPassword(loginUser.getEmail(), loginUser.getLozinka());
         if (user==null) {
         	return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
         }
@@ -83,11 +91,12 @@ public class LoginController {
     public ResponseEntity<String> loginKorisnik(@RequestBody LoginUser loginUser) throws Exception{
     	System.out.println("neki dobar token za korisnika");
 
-    	//final Authentication authentication = authenticationManager.authenticate(
-        	//	new UsernamePasswordAuthenticationToken(loginUser.getEmail(),loginUser.getLozinka()));
-        
-        //SecurityContextHolder.getContext().setAuthentication(authentication);
-    	final Korisnik user = korisnikRepository.findByEmailPassword(loginUser.getEmail(), loginUser.getLozinka());
+    	Valid v = new LoginUserValidator().validate(loginUser);
+		if (!v.isValid()) {
+			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
+		}
+		
+		final Korisnik user = korisnikRepository.findByEmailPassword(loginUser.getEmail(), loginUser.getLozinka());
         if (user==null) {
         	return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
         }

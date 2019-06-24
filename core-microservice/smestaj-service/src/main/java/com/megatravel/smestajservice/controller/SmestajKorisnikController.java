@@ -44,6 +44,10 @@ public class SmestajKorisnikController {
 	@RequestMapping(value = "/all", method = RequestMethod.GET)
 	public ResponseEntity<SmestajiRestTemplate> getAllSmestaji(Pageable page) {		
 
+		if (page==null) {
+			return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+		}
+		
 		//ne treba ovde autorizacija svako moze da pregleda smestaje
 		Page<Smestaj> smestaji = smestajService.getSmestaji(page);
 		

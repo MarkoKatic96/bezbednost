@@ -27,9 +27,13 @@ import io.webxml.reservationservice.model.Agent;
 import io.webxml.reservationservice.model.PotvrdaRezervacije;
 import io.webxml.reservationservice.model.Rezervacija;
 import io.webxml.reservationservice.model.SamostalnaRezervacija;
+import io.webxml.reservationservice.model.StatusRezervacije;
 import io.webxml.reservationservice.security.JwtTokenUtils;
 import io.webxml.reservationservice.service.RezervacijaService;
 import io.webxml.reservationservice.service.SamostalnaRezervacijaService;
+import io.webxml.reservationservice.validators.PotvrdaRezervacijeValidator;
+import io.webxml.reservationservice.validators.SamostalnaRezervacijaValidator;
+import io.webxml.reservationservice.validators.Valid;
 
 @RestController
 @RequestMapping("/reservation-service/agent")
@@ -49,7 +53,7 @@ public class RezervacijaAgentController {
 	
 	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<SamostalnaRezervacijaDTO> createRezervacija(@RequestBody SamostalnaRezervacijaDTO rezDTO, HttpServletRequest req) {
+	public ResponseEntity<?> createRezervacija(@RequestBody SamostalnaRezervacijaDTO rezDTO, HttpServletRequest req) {
 		System.out.println("createRezervacija()");
 		
 		String token = jwtTokenUtils.resolveToken(req);
@@ -66,6 +70,12 @@ public class RezervacijaAgentController {
 		}
 		
 		SamostalnaRezervacija s = new SamostalnaRezervacija(null, rezDTO.getSmestajId(), agent.getIdAgenta(), rezDTO.getOdDatuma(), rezDTO.getDoDatuma());
+		
+		Valid v = new SamostalnaRezervacijaValidator().validate(s);
+		if (!v.isValid()) {
+			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
+		}
+		
 		SamostalnaRezervacija retVal = samostalnaRezervacijaService.save(s);
 		
 		return new ResponseEntity<>(new SamostalnaRezervacijaDTO(retVal), HttpStatus.CREATED);
@@ -100,7 +110,7 @@ public class RezervacijaAgentController {
 	
 	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "/potvrdi", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<RezervacijaDTO> potvrdiRezervacija(@RequestBody PotvrdaRezervacije potvrda, HttpServletRequest req) {
+	public ResponseEntity<?> potvrdiRezervacija(@RequestBody PotvrdaRezervacije potvrda, HttpServletRequest req) {
 		System.out.println("potvrdiRezervacija()");
 		
 		String token = jwtTokenUtils.resolveToken(req);
@@ -114,6 +124,14 @@ public class RezervacijaAgentController {
 		Agent agent = agentEntity.getBody();
 		if (agent == null) {			
 			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+		}
+		
+		Valid v = new PotvrdaRezervacijeValidator().validate(potvrda);
+		if (!v.isValid()) {
+			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
+		}
+		if (potvrda.getStatusRezervacije()!=StatusRezervacije.POTVRDJENA && potvrda.getStatusRezervacije()!=StatusRezervacije.NEIZVRSENA) {
+			return new ResponseEntity<>(new Valid(false, "STATUS"), HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		
 		Rezervacija rezervacija = rezervacijaService.findOne(potvrda.getRezervacijaId(), agent.getIdAgenta());
@@ -151,7 +169,7 @@ public class RezervacijaAgentController {
 		try {
 			date = format.parse ( timestamp );
 		} catch (ParseException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
 		} 
 		
@@ -182,6 +200,10 @@ public class RezervacijaAgentController {
 		Agent agent = agentEntity.getBody();
 		if (agent == null) {			
 			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+		}
+		
+		if (listaLokalnihRezervacija==null) {
+			return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		
 		ArrayList<LokalneRezervacijeDTO> retVal = new ArrayList<>();

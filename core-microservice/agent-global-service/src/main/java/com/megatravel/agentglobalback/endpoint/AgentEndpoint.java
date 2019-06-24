@@ -23,6 +23,9 @@ import com.megatravel.agentglobalback.model.ValidateTokenRequest;
 import com.megatravel.agentglobalback.model.ValidateTokenResponse;
 import com.megatravel.agentglobalback.service.AgentService;
 import com.megatravel.agentglobalback.service.NeaktiviranAgentService;
+import com.megatravel.agentglobalbackend.validators.AgentRegistracijaDTOValidator;
+import com.megatravel.agentglobalbackend.validators.AgentValidator;
+import com.megatravel.agentglobalbackend.validators.Valid;
 
 @Endpoint
 public class AgentEndpoint {
@@ -73,6 +76,11 @@ public class AgentEndpoint {
 			return response;
 		}
 		
+		Valid v = new AgentValidator().validate(request.getAgent());
+		if (!v.isValid()) {
+			return response;
+		}
+		
 		Agent tempKorisnik = agentService.findByEmail(request.getAgent().getEmail());
 		if(tempKorisnik != null) {
 			if (tempKorisnik.getIdAgenta()!=request.getAgent().getIdAgenta()) {
@@ -99,6 +107,16 @@ public class AgentEndpoint {
 		log.info("signUp " + request.getAgentRegistracijaDTO());
 		
 		SignUpResponse response = new SignUpResponse();
+		
+		if (request.getAgentRegistracijaDTO()==null) {
+			return response;
+		}
+		
+		Valid v = new AgentRegistracijaDTOValidator().validate(request.getAgentRegistracijaDTO());
+		if (!v.isValid()) {
+			return response;
+		}
+		
 		Agent tempKorisnik = agentService.findByEmail(request.getAgentRegistracijaDTO().getEmail());
 		if(tempKorisnik != null) {
 			//mora biti jedinstveni mail za korisnika

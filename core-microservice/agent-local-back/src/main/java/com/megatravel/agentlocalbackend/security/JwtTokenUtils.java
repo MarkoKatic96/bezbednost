@@ -25,12 +25,16 @@ public class JwtTokenUtils {
 		return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails == null ? null : userDetails.getAuthorities());
 	}	
 
-	String resolveToken(HttpServletRequest req) {
+	public String resolveToken(HttpServletRequest req) {
 		String bearerToken = req.getHeader("Authorization");
 		if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
 			return bearerToken.substring(7, bearerToken.length());
 		}
 		return null;
+	}
+	
+	public String getUsername(String token) {
+		return Jwts.parser().setSigningKey(jwtKey).parseClaimsJws(token).getBody().getSubject();
 	}
 
 	boolean validateToken(String token) {

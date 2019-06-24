@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.megatravel.ratingservice.dto.NovaOcenaDTO;
 import com.megatravel.ratingservice.model.Ocena;
 import com.megatravel.ratingservice.service.OcenaService;
+import com.megatravel.ratingservice.validators.OcenaValidator;
+import com.megatravel.ratingservice.validators.Valid;
 
 @RestController
 @RequestMapping("/rating-service/ocena")
@@ -24,25 +26,26 @@ public class OcenaController {
 
 	@PreAuthorize("hasAnyRole('ROLE_KORISNIK')")
 	@RequestMapping(value = "/new", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Ocena> createOcena(@RequestBody NovaOcenaDTO novaOcena){
+	public ResponseEntity<?> createOcena(@RequestBody NovaOcenaDTO novaOcena){
 		
 		Ocena ocena = new Ocena(null, novaOcena.getIdSmestaj(), novaOcena.getIdRezervacija(), novaOcena.getIdKorisnik(), novaOcena.getOcena());
-		if (ocena.getOcena()<0 || ocena.getOcena()>5) {
-			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+		Valid v = new OcenaValidator().validate(ocena);
+		if (!v.isValid() || ocena.getOcena()<1) {
+			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
 		}
-
+		
 		ocena = ocenaService.save(ocena);
 		return new ResponseEntity<>(ocena, HttpStatus.CREATED);
 	}
 	
 	@PreAuthorize("hasAnyRole('ROLE_KORISNIK')")
 	@RequestMapping(value = "/", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Ocena> editDeleteOcena(@RequestBody Ocena novaOcena){
+	public ResponseEntity<?> editDeleteOcena(@RequestBody Ocena novaOcena){
 		
-		if (novaOcena.getOcena()<0 || novaOcena.getOcena()>5) {
-			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+		Valid v = new OcenaValidator().validate(novaOcena);
+		if (!v.isValid()) {
+			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
 		}
-		
 		
 		if (novaOcena.getOcena()==0) {
 			//brisanje ocene

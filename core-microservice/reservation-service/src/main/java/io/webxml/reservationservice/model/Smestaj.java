@@ -34,6 +34,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 })
 @XmlRootElement(name = "Smestaj")
 public class Smestaj {
+	public TKoordinate getKoordinate() {
+		return koordinate;
+	}
+
 	private Long idSmestaja;
 	
     @XmlElement(required = true)

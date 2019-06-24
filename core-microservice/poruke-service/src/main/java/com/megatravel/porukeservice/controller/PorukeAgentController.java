@@ -2,6 +2,7 @@ package com.megatravel.porukeservice.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -25,11 +26,13 @@ import org.springframework.web.client.RestTemplate;
 import com.megatravel.porukeservice.dto.NovaPorukaDTO;
 import com.megatravel.porukeservice.dto.PorukaDTO;
 import com.megatravel.porukeservice.model.Agent;
+import com.megatravel.porukeservice.model.Korisnik;
 import com.megatravel.porukeservice.model.Poruka;
 import com.megatravel.porukeservice.model.StatusPoruke;
 import com.megatravel.porukeservice.model.TipOsobe;
 import com.megatravel.porukeservice.security.JwtTokenUtils;
 import com.megatravel.porukeservice.service.PorukeService;
+import com.megatravel.porukeservice.validators.Valid;
 
 @RestController
 @RequestMapping("/poruke-agent-service/poruke")
@@ -54,12 +57,16 @@ public class PorukeAgentController {
 		
 		ResponseEntity<Agent> agentEntity = restTemplate.getForEntity("http://agent-global-service/agent/e/"+email, Agent.class);
 		if (agentEntity.getStatusCode() != HttpStatus.OK) {
-			return null;
+			return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
 		}
 		
 		Agent agent = agentEntity.getBody();
 		if (agent == null) {			
 			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+		}
+		
+		if (page==null) {
+			return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		
 		Page<Poruka> poruke = porukeService.findAllWithUser(userId, agent.getIdAgenta(), page);
@@ -87,12 +94,16 @@ public class PorukeAgentController {
 		
 		ResponseEntity<Agent> agentEntity = restTemplate.getForEntity("http://agent-global-service/agent/e/"+email, Agent.class);
 		if (agentEntity.getStatusCode() != HttpStatus.OK) {
-			return null;
+			return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
 		}
 		
 		Agent agent = agentEntity.getBody();
 		if (agent == null) {			
 			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+		}
+		
+		if (page==null) {
+			return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		
 		Page<Poruka> poruke = porukeService.findAllNeprocitaneZaAgenta(agent.getIdAgenta(), page);
@@ -127,7 +138,7 @@ public class PorukeAgentController {
 		ResponseEntity<Agent> agentEntity = restTemplate.exchange(getAgentUrl, HttpMethod.POST, entity, Agent.class);
 		
 		if (agentEntity.getStatusCode() != HttpStatus.OK) {
-			return null;
+			return new ResponseEntity<>(agentEntity.getStatusCode());
 		}
 		
 		Agent agent = agentEntity.getBody();
@@ -141,13 +152,13 @@ public class PorukeAgentController {
 			p.setStatus(StatusPoruke.PROCITANA);
 			porukeService.save(p);
 		}
-		
+
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
 	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<PorukaDTO> sendPoruka(@RequestBody NovaPorukaDTO novaPoruka, HttpServletRequest req) {
+	public ResponseEntity<?> sendPoruka(@RequestBody NovaPorukaDTO novaPoruka, HttpServletRequest req) {
 		System.out.println("sendPoruka()");
 		
 		String token = jwtTokenUtils.resolveToken(req);
@@ -155,15 +166,29 @@ public class PorukeAgentController {
 		
 		ResponseEntity<Agent> agentEntity = restTemplate.getForEntity("http://agent-global-service/agent/e/"+email, Agent.class);
 		if (agentEntity.getStatusCode() != HttpStatus.OK) {
-			return null;
+			return new ResponseEntity<>(agentEntity.getStatusCode());
 		}
 		
 		Agent agent = agentEntity.getBody();
-		if (agent == null) {			
+		if (agent == null) {
 			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 		}
 		
+		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("http://korisnik-service/korisnik-service//korisnici/"+novaPoruka.getPrimalac(), Korisnik.class);
+		if (korisnikEntity.getStatusCode() != HttpStatus.OK) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		
+		Korisnik korisnik = korisnikEntity.getBody();
+		if (korisnik == null) {			
+			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+		}
+		
 		Poruka poruka = new Poruka(null, agent.getIdAgenta(), TipOsobe.AGENT, novaPoruka.getPrimalac(), TipOsobe.KORISNIK, novaPoruka.getSadrzaj(), StatusPoruke.POSLATA);
+		if (!Pattern.matches("[\\p{L}\\p{M}]+", poruka.getSadrzaj())) {
+			return new ResponseEntity<>(new Valid(false, "PORUKA_CHAR"), HttpStatus.UNPROCESSABLE_ENTITY);
+		}
+		
 		Poruka retVal = porukeService.save(poruka);
 		
 		return new ResponseEntity<>(new PorukaDTO(retVal), HttpStatus.CREATED);

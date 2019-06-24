@@ -25,6 +25,8 @@ import com.megatravel.smestajservice.model.Agent;
 import com.megatravel.smestajservice.model.Smestaj;
 import com.megatravel.smestajservice.security.JwtTokenUtils;
 import com.megatravel.smestajservice.service.SmestajService;
+import com.megatravel.smestajservice.validators.SmestajValidator;
+import com.megatravel.smestajservice.validators.Valid;
 
 @RestController
 @RequestMapping("/smestaj-service/smestaj")
@@ -49,7 +51,7 @@ public class SmestajAgentController {
 		
 		ResponseEntity<Agent> agentEntity = restTemplate.getForEntity("http://agent-global-service/agent/e/"+email, Agent.class);
 		if (agentEntity.getStatusCode() != HttpStatus.OK) {
-			return null;
+			return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
 		}
 		
 		Agent agent = agentEntity.getBody();
@@ -57,6 +59,9 @@ public class SmestajAgentController {
 			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 		}
 		
+		if (page==null) {
+			return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+		}
 		Page<Smestaj> smestaji = smestajService.getAll(agent.getIdAgenta(), page);
 		
 		HttpHeaders headers = new HttpHeaders();
@@ -102,7 +107,7 @@ public class SmestajAgentController {
 	
 	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<SmestajDTO> create(@RequestBody SmestajDTO smestajDTO, HttpServletRequest req) {
+	public ResponseEntity<?> create(@RequestBody SmestajDTO smestajDTO, HttpServletRequest req) {
 		System.out.println("create()");
 		
 		String token = jwtTokenUtils.resolveToken(req);
@@ -135,6 +140,11 @@ public class SmestajAgentController {
 		s.setListaDodatnihUsluga(smestajDTO.getListaDodatnihUsluga());
 		s.setListaSlika(smestajDTO.getListaSlika());
 
+		Valid v = new SmestajValidator().validate(s);
+		if (!v.isValid()) {
+			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
+		}
+		
 		Smestaj retVal = smestajService.save(s);
 
 		return new ResponseEntity<>(new SmestajDTO(retVal), HttpStatus.CREATED);
@@ -142,7 +152,7 @@ public class SmestajAgentController {
 	
 	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<SmestajDTO> update(@PathVariable Long id, @RequestBody SmestajDTO smestajDTO, HttpServletRequest req) {
+	public ResponseEntity<?> update(@PathVariable Long id, @RequestBody SmestajDTO smestajDTO, HttpServletRequest req) {
 		System.out.println("update()");
 		
 		String token = jwtTokenUtils.resolveToken(req);
@@ -164,6 +174,11 @@ public class SmestajAgentController {
 		}
 
 		smestaj.update(smestajDTO);
+		
+		Valid v = new SmestajValidator().validate(smestaj);
+		if (!v.isValid()) {
+			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
+		}
 
 		Smestaj retVal = smestajService.save(smestaj);
 

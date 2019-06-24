@@ -25,6 +25,8 @@ import com.megatravel.ratingservice.model.Komentar;
 import com.megatravel.ratingservice.model.StatusKomentara;
 import com.megatravel.ratingservice.model.StatusRezervacije;
 import com.megatravel.ratingservice.service.KomentarService;
+import com.megatravel.ratingservice.validators.KomentarValidator;
+import com.megatravel.ratingservice.validators.Valid;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
@@ -39,7 +41,7 @@ public class KomentarController {
 
 	@PreAuthorize("hasAnyRole('ROLE_KORISNIK')")
 	@RequestMapping(value = "/", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Komentar> createKomentar(@RequestBody NoviKomentarDTO noviKomentar){
+	public ResponseEntity<?> createKomentar(@RequestBody NoviKomentarDTO noviKomentar){
 		System.out.println("createKomentar()");
 		
 		ResponseEntity<RezervacijaDTO> rezervacijaEntity = restTemplate.getForEntity("http://reservation-service/reservation-service/rezervacija/status/"+noviKomentar.getIdRezervacije(), RezervacijaDTO.class);
@@ -59,18 +61,32 @@ public class KomentarController {
 		}
 		
 		Komentar komentar = new Komentar(null, rezervacija.getSmestajId(), rezervacija.getRezervacijaId(), rezervacija.getKorisnikId(), noviKomentar.getKomentar(), StatusKomentara.NEOBJAVLJEN);
+		
+		Valid v = new KomentarValidator().validate(komentar);
+		if (!v.isValid()) {
+			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
+		}
+		
 		komentar = komentarService.save(komentar);
 		return new ResponseEntity<Komentar>(komentar, HttpStatus.CREATED);
 	}
 	
 	@PreAuthorize("hasAnyRole('ROLE_ADMIN')")
 	@RequestMapping(value = "/{id}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Komentar> blokirajObjaviKomentar(@RequestBody StatusKomentara statusKomentara, @PathVariable Long id){
+	public ResponseEntity<?> blokirajObjaviKomentar(@RequestBody StatusKomentara statusKomentara, @PathVariable Long id){
 		System.out.println("blokirajObjaviKomentar(" + statusKomentara + ")");
 		
 		Optional<Komentar> kom = komentarService.findById(id);
 		if (!kom.isPresent()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		
+		if (statusKomentara==null) {
+			return new ResponseEntity<>(new Valid(false, "STATUS_NULL"),HttpStatus.UNPROCESSABLE_ENTITY); 
+		}
+		
+		if (statusKomentara==StatusKomentara.NEOBJAVLJEN) {
+			return new ResponseEntity<>(new Valid(false, "STATUS_VALUE"),HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		
 		Komentar komentar = kom.get();
@@ -85,6 +101,10 @@ public class KomentarController {
 	public ResponseEntity<List<Komentar>> getNeobjavljeniKomentari(Pageable page) {
 		System.out.println("getNeobjavljeniKomentari()");
 		
+		if (page==null) {
+			return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+		}
+		
 		Page<Komentar> neobjavljeniKomentari = komentarService.findAllNeobjavljenji(page);
 		
 		HttpHeaders headers = new HttpHeaders();
@@ -94,11 +114,12 @@ public class KomentarController {
 		return new ResponseEntity<>(neobjavljeniKomentari.getContent(), headers, HttpStatus.OK);
 	}
 	
-	@RequestMapping(value = "/all", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	//kome treba lista svih objavljenih komentara za sve moguce smestaje i to cak ni kao pageable?
+	/*@RequestMapping(value = "/all", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<Komentar>> getAllKomentari() {
 		
 		List<Komentar> allKomentari = komentarService.findAllObjavljenji();
 		return new ResponseEntity<List<Komentar>>(allKomentari, HttpStatus.OK);
-	}
+	}*/
 	
 }

@@ -1,13 +1,8 @@
 package com.megatravel.agentlocalbackend.controller;
 
-import java.nio.charset.Charset;
-
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,6 +18,9 @@ import com.megatravel.agentlocalbackend.security.JwtTokenUtils;
 import com.megatravel.agentlocalbackend.service.AgentService;
 import com.megatravel.agentlocalbackend.service.RezervacijaService;
 import com.megatravel.agentlocalbackend.soap.AgentClient;
+import com.megatravel.agentlocalbackend.validators.AgentRegistracijaDTOValidator;
+import com.megatravel.agentlocalbackend.validators.AgentValidator;
+import com.megatravel.agentlocalbackend.validators.Valid;
 import com.megatravel.agentlocalbackend.wsdl.AgentDTO;
 import com.megatravel.agentlocalbackend.wsdl.AgentRegistracijaDTO;
 import com.megatravel.agentlocalbackend.wsdl.EditResponse;
@@ -52,6 +50,9 @@ public class AgentController {
 	@Autowired
 	JwtTokenUtils jwtTokenUtils;
 	
+	@Autowired
+	RestTemplate restTemplate;
+	
 	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public ResponseEntity<AgentDTO> getAgent(@PathVariable Long id) {
@@ -69,7 +70,7 @@ public class AgentController {
 
 	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "/e/{email}", method = RequestMethod.GET)
-	public ResponseEntity<com.megatravel.agentlocalbackend.model.Agent> getAgentByEmail(@PathVariable String email) {
+	public ResponseEntity<com.megatravel.agentlocalbackend.model.Agent> getAgentByEmail(@PathVariable String email, HttpServletRequest req) {
 		System.out.println("getAgentByEmail(" + email + ")");
 		
 		com.megatravel.agentlocalbackend.model.Agent agent = agentService.findByEmail(email);
@@ -80,6 +81,14 @@ public class AgentController {
 			if (agentNovi==null) {
 				return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 			} else {
+				String token = jwtTokenUtils.resolveToken(req);
+				String agentEmail = jwtTokenUtils.getUsername(token);
+				
+				ResponseEntity<Agent> agentEntity = restTemplate.getForEntity("http://agent-global-service/agent/e/"+agentEmail, Agent.class);
+				if (agentEntity.getStatusCode() != HttpStatus.OK) {
+					return new ResponseEntity<>(agentEntity.getStatusCode());
+				}
+				
 				agent = new com.megatravel.agentlocalbackend.model.Agent(agentNovi.getIdAgenta(), agentNovi.getIme(), agentNovi.getPrezime(), agentNovi.getPoslovniMaticniBroj(), agentNovi.getEmail(), agentNovi.getLozinka());
 				agent.setDatumClanstva(agentNovi.getDatumClanstva());
 				agentService.deleteAll();
@@ -93,7 +102,7 @@ public class AgentController {
 	
 	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "/edit", method = RequestMethod.POST, consumes = "application/json")
-	public ResponseEntity<AgentDTO> edit(@RequestBody Agent noviAgent) {
+	public ResponseEntity<?> edit(@RequestBody Agent noviAgent, HttpServletRequest req) {
 		System.out.println("edit(" + noviAgent.getEmail() + "," + noviAgent.getLozinka() + ")");
 		
 		EditResponse editResponse = agentClient.getEdit(noviAgent);
@@ -101,6 +110,19 @@ public class AgentController {
 		if (agentDTO==null) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST); 
 		} else {
+			String token = jwtTokenUtils.resolveToken(req);
+			String agentEmail = jwtTokenUtils.getUsername(token);
+			
+			ResponseEntity<Agent> agentEntity = restTemplate.getForEntity("http://agent-global-service/agent/e/"+agentEmail, Agent.class);
+			if (agentEntity.getStatusCode() != HttpStatus.OK) {
+				return new ResponseEntity<>(agentEntity.getStatusCode());
+			}
+			
+			Valid v = new AgentValidator().validate(noviAgent);
+			if (!v.isValid()) {
+				return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
+			}
+			
 			com.megatravel.agentlocalbackend.model.Agent a = new com.megatravel.agentlocalbackend.model.Agent();
 			a.setDatumClanstva(agentDTO.getDatumClanstva());
 			a.setEmail(agentDTO.getEmail());
@@ -116,7 +138,7 @@ public class AgentController {
 	}
 	
 	@RequestMapping(value = "/register", method = RequestMethod.POST)
-	public ResponseEntity<NeaktiviranAgent> signup(@RequestBody AgentRegistracijaDTO agentRegistracijaDTO) {
+	public ResponseEntity<?> signup(@RequestBody AgentRegistracijaDTO agentRegistracijaDTO) {
 		System.out.println("signup()");
 		/*
 		Agent tempKorisnik = agentService.findByEmail(agentRegistracijaDTO.getEmail());
@@ -147,6 +169,11 @@ public class AgentController {
 		NeaktiviranAgent retValue = neaktiviranAgentService.save(agent);
 		*/
 		
+		Valid v = new AgentRegistracijaDTOValidator().validate(agentRegistracijaDTO);
+		if (!v.isValid()) {
+			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
+		}
+		
 		SignUpResponse signupResponse = agentClient.getSignUp(agentRegistracijaDTO);
 		NeaktiviranAgent agent = signupResponse.getNeaktiviranAgent();
 		
@@ -161,7 +188,7 @@ public class AgentController {
 		return new ResponseEntity<>(agent, HttpStatus.CREATED);
 	}
 	
-	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
+	/*@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "/signout", method = RequestMethod.GET)
 	public ResponseEntity<Void> signout(HttpServletRequest request) {
 		System.out.println("signout()");
@@ -184,11 +211,11 @@ public class AgentController {
 	    } catch (Exception e) {
 	        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	    }
-	}
+	}*/
 	
 	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "/token", method = RequestMethod.POST)
-	public ResponseEntity<Boolean> validateToken(@RequestBody String token) {
+	public ResponseEntity<Boolean> validateToken() {
 		System.out.println("validateToken()");
 	
 		return new ResponseEntity<>(new Boolean(true), HttpStatus.OK);

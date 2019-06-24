@@ -2,6 +2,7 @@ package com.megatravel.porukeservice.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -29,6 +30,7 @@ import com.megatravel.porukeservice.model.StatusPoruke;
 import com.megatravel.porukeservice.model.TipOsobe;
 import com.megatravel.porukeservice.security.JwtTokenUtils;
 import com.megatravel.porukeservice.service.PorukeService;
+import com.megatravel.porukeservice.validators.Valid;
 
 @RestController
 @RequestMapping("/poruke-korisnik-service/poruke")
@@ -58,6 +60,10 @@ public class PorukeKorisnikController {
 		Korisnik korisnik = korisnikEntity.getBody();
 		if (korisnik == null) {			
 			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+		}
+		
+		if (page==null) {
+			return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		
 		Page<Poruka> poruke = porukeService.findAllWithAgent(agentId, korisnik.getIdKorisnik(), page);
@@ -136,7 +142,7 @@ public class PorukeKorisnikController {
 	
 	@PreAuthorize("hasAnyRole('ROLE_KORISNIK')")
 	@RequestMapping(value = "/posalji/{token}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<PorukaDTO> sendPoruka(@RequestBody NovaPorukaDTO novaPoruka, @PathVariable("token") String token) {
+	public ResponseEntity<?> sendPoruka(@RequestBody NovaPorukaDTO novaPoruka, @PathVariable("token") String token) {
 		System.out.println("sendPoruka()");
 		
 		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("http://korisnik-service/korisnik-service/getKorisnikByToken/"+token, Korisnik.class);
@@ -150,6 +156,10 @@ public class PorukeKorisnikController {
 		}
 		
 		Poruka poruka = new Poruka(null, korisnik.getIdKorisnik(), TipOsobe.KORISNIK, novaPoruka.getPrimalac(), TipOsobe.AGENT, novaPoruka.getSadrzaj(), StatusPoruke.POSLATA);
+		if (!Pattern.matches("[\\p{L}\\p{M}]+", poruka.getSadrzaj())) {
+			return new ResponseEntity<>(new Valid(false, "PORUKA_CHAR"), HttpStatus.UNPROCESSABLE_ENTITY);
+		}
+		
 		Poruka retVal = porukeService.save(poruka);
 		
 		return new ResponseEntity<>(new PorukaDTO(retVal), HttpStatus.CREATED);

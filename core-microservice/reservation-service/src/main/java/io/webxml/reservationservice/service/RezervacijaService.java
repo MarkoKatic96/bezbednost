@@ -99,12 +99,14 @@ public class RezervacijaService {
 		return null;
 	}
 	
-	public Rezervacija otkaziRezervaciju(Long id) {
+	public Rezervacija otkaziRezervaciju(Long id, Long korisnikId) {
 		Optional<Rezervacija> rezervacija = rezervacijaRepository.findById(id);
 		if(rezervacija.isPresent()) {
-			rezervacija.get().setStatusRezervacije(StatusRezervacije.OTKAZANA);
-			rezervacijaRepository.save(rezervacija.get());
-			return rezervacija.get();
+			if (rezervacija.get().getKorisnikId()==korisnikId) {
+				rezervacija.get().setStatusRezervacije(StatusRezervacije.OTKAZANA);
+				rezervacijaRepository.save(rezervacija.get());
+				return rezervacija.get();
+			}
 		}
 		return null;
 	}

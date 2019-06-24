@@ -145,6 +145,8 @@ public class Smestaj {
 	public void setLongitude(BigDecimal longitude) {
 		koordinate.setLongitude(longitude);
 	}
+	
+	
 
 	@JsonIgnore
 	public TipSmestaja getTipSmestaja() {
@@ -222,6 +224,10 @@ public class Smestaj {
 		this.cenaZima = cenaZima;
 	}
 
+	public TKoordinate getKoordinate() {
+		return koordinate;
+	}
+	
 	/**
      * Gets the value of the vlasnik property.
      * 

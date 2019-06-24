@@ -1,5 +1,7 @@
 package com.megatravel.agentglobalback.controller;
 
+import java.util.regex.Pattern;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,8 @@ import com.megatravel.agentglobalback.model.NeaktiviranAgent;
 import com.megatravel.agentglobalback.security.JwtTokenUtils;
 import com.megatravel.agentglobalback.service.AgentService;
 import com.megatravel.agentglobalback.service.NeaktiviranAgentService;
+import com.megatravel.agentglobalbackend.validators.AgentValidator;
+import com.megatravel.agentglobalbackend.validators.Valid;
 
 @RestController
 @RequestMapping("/agent-global-service/agent")
@@ -46,8 +50,12 @@ public class AgentController {
 	
 	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "/e/{email}", method = RequestMethod.GET)
-	public ResponseEntity<Agent> getAgentByEmail(@PathVariable String email) {
+	public ResponseEntity<?> getAgentByEmail(@PathVariable String email) {
 		System.out.println("getAgentByEmail(" + email + ")");
+		
+		if (!Pattern.matches("^[\\w-_\\.+]*[\\w-_\\.]\\@megatravel\\.com$", email.trim())) {
+			return new ResponseEntity<>(new Valid(false, "EMAIL_CHAR"), HttpStatus.UNPROCESSABLE_ENTITY);
+		}
 		
 		Agent agent = agentService.findByEmail(email);
 		if (agent == null) {
@@ -59,12 +67,17 @@ public class AgentController {
 
 	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "/edit", method = RequestMethod.POST, consumes = "application/json")
-	public ResponseEntity<AgentDTO> edit(@RequestBody Agent noviAgent) {
+	public ResponseEntity<?> edit(@RequestBody Agent noviAgent) {
 		System.out.println("edit(" + noviAgent.getEmail() + "," + noviAgent.getLozinka() + ")");
 		
 		Agent agent = agentService.findByEmail(noviAgent.getEmail());
 		if(agent == null) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+
+		Valid v = new AgentValidator().validate(noviAgent);
+		if (!v.isValid()) {
+			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 
 		agent = agentService.save(noviAgent);

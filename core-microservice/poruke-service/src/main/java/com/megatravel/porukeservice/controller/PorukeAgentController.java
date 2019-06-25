@@ -55,7 +55,7 @@ public class PorukeAgentController {
 		String token = jwtTokenUtils.resolveToken(req);
 		String email = jwtTokenUtils.getUsername(token);
 		
-		ResponseEntity<Agent> agentEntity = restTemplate.getForEntity("http://agent-global-service/agent/e/"+email, Agent.class);
+		ResponseEntity<Agent> agentEntity = restTemplate.getForEntity("https://agent-global-service/agent/e/"+email, Agent.class);
 		if (agentEntity.getStatusCode() != HttpStatus.OK) {
 			return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
 		}
@@ -92,7 +92,7 @@ public class PorukeAgentController {
 		String token = jwtTokenUtils.resolveToken(req);
 		String email = jwtTokenUtils.getUsername(token);
 		
-		ResponseEntity<Agent> agentEntity = restTemplate.getForEntity("http://agent-global-service/agent/e/"+email, Agent.class);
+		ResponseEntity<Agent> agentEntity = restTemplate.getForEntity("https://agent-global-service/agent/e/"+email, Agent.class);
 		if (agentEntity.getStatusCode() != HttpStatus.OK) {
 			return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
 		}
@@ -129,7 +129,7 @@ public class PorukeAgentController {
 		String token = jwtTokenUtils.resolveToken(req);
 		String email = jwtTokenUtils.getUsername(token);
 		
-		String getAgentUrl = "http://agent-global-service/agent-global-service/agent/e/"+email;
+		String getAgentUrl = "https://agent-global-service/agent-global-service/agent/e/"+email;
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		headers.set("Authorization", "Bearer "+token);
@@ -164,7 +164,7 @@ public class PorukeAgentController {
 		String token = jwtTokenUtils.resolveToken(req);
 		String email = jwtTokenUtils.getUsername(token);
 		
-		ResponseEntity<Agent> agentEntity = restTemplate.getForEntity("http://agent-global-service/agent/e/"+email, Agent.class);
+		ResponseEntity<Agent> agentEntity = restTemplate.getForEntity("https://agent-global-service/agent/e/"+email, Agent.class);
 		if (agentEntity.getStatusCode() != HttpStatus.OK) {
 			return new ResponseEntity<>(agentEntity.getStatusCode());
 		}
@@ -174,7 +174,7 @@ public class PorukeAgentController {
 			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 		}
 		
-		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("http://korisnik-service/korisnik-service//korisnici/"+novaPoruka.getPrimalac(), Korisnik.class);
+		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("https://korisnik-service/korisnik-service//korisnici/"+novaPoruka.getPrimalac(), Korisnik.class);
 		if (korisnikEntity.getStatusCode() != HttpStatus.OK) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}

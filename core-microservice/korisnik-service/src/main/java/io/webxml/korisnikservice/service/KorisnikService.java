@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import io.webxml.korisnikservice.model.Korisnik;
 import io.webxml.korisnikservice.repository.KorisnikRepository;
+import io.webxml.korisnikservice.validators.KorisnikValidator;
+import io.webxml.korisnikservice.validators.Valid;
 
 @Service
 public class KorisnikService {
@@ -34,16 +36,21 @@ public class KorisnikService {
 		return k;
 	}
 	
-	public Korisnik register(Korisnik korisnik) {
+	public Valid register(Korisnik korisnik) {
 		Korisnik k = korisnikRepository.nadjiKorisnikaPoEmail(korisnik.getEmail());
+		Valid v = new KorisnikValidator().validate(korisnik);
+		if (!v.isValid()) {
+			return v;
+		}
 		if(k==null) {
 			korisnik.setRola("KORISNIK");
 			korisnik.setDatumClanstva(new Date());
 			korisnik.setBlokiran(false);
 			korisnik.setRegistrovan(false);
-			return korisnikRepository.save(korisnik);
+			k = korisnikRepository.save(korisnik);
+			return new Valid(true,"");
 		}
-		return null;
+		return new Valid(false, "EMAIL_EXISTS");
 	}
 	
 	/*public String signin(String email, String lozinka) {

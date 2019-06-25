@@ -26,7 +26,7 @@ public class MyUserDetails implements UserDetailsService {
 		ResponseEntity<UserDAO> user = null;
 		
 		try {
-			user = authService.postForEntity("http://auth-service/auth/login/role", token, UserDAO.class);
+			user = authService.postForEntity("https://auth-service/auth/login/role", token, UserDAO.class);
 		} catch (Exception e) {
 			return null;
 		}

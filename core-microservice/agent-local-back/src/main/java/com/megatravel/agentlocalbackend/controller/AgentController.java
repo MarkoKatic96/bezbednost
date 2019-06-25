@@ -84,7 +84,7 @@ public class AgentController {
 				String token = jwtTokenUtils.resolveToken(req);
 				String agentEmail = jwtTokenUtils.getUsername(token);
 				
-				ResponseEntity<Agent> agentEntity = restTemplate.getForEntity("http://agent-global-service/agent/e/"+agentEmail, Agent.class);
+				ResponseEntity<Agent> agentEntity = restTemplate.getForEntity("https://agent-global-service/agent/e/"+agentEmail, Agent.class);
 				if (agentEntity.getStatusCode() != HttpStatus.OK) {
 					return new ResponseEntity<>(agentEntity.getStatusCode());
 				}
@@ -113,7 +113,7 @@ public class AgentController {
 			String token = jwtTokenUtils.resolveToken(req);
 			String agentEmail = jwtTokenUtils.getUsername(token);
 			
-			ResponseEntity<Agent> agentEntity = restTemplate.getForEntity("http://agent-global-service/agent/e/"+agentEmail, Agent.class);
+			ResponseEntity<Agent> agentEntity = restTemplate.getForEntity("https://agent-global-service/agent/e/"+agentEmail, Agent.class);
 			if (agentEntity.getStatusCode() != HttpStatus.OK) {
 				return new ResponseEntity<>(agentEntity.getStatusCode());
 			}

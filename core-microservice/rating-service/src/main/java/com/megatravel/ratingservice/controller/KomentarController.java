@@ -44,7 +44,7 @@ public class KomentarController {
 	public ResponseEntity<?> createKomentar(@RequestBody NoviKomentarDTO noviKomentar){
 		System.out.println("createKomentar()");
 		
-		ResponseEntity<RezervacijaDTO> rezervacijaEntity = restTemplate.getForEntity("http://reservation-service/reservation-service/rezervacija/status/"+noviKomentar.getIdRezervacije(), RezervacijaDTO.class);
+		ResponseEntity<RezervacijaDTO> rezervacijaEntity = restTemplate.getForEntity("https://reservation-service/reservation-service/rezervacija/status/"+noviKomentar.getIdRezervacije(), RezervacijaDTO.class);
 		if (rezervacijaEntity.getStatusCode() != HttpStatus.OK) {
 			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 		}
@@ -114,12 +114,15 @@ public class KomentarController {
 		return new ResponseEntity<>(neobjavljeniKomentari.getContent(), headers, HttpStatus.OK);
 	}
 	
-	//kome treba lista svih objavljenih komentara za sve moguce smestaje i to cak ni kao pageable?
-	/*@RequestMapping(value = "/all", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<Komentar>> getAllKomentari() {
+	@RequestMapping(value = "/all/{smestajId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<Komentar>> getAllKomentari(@PathVariable Long smestajId, Pageable page) {
+		Page<Komentar> allKomentari = komentarService.findAllObjavljenji(smestajId, page);
 		
-		List<Komentar> allKomentari = komentarService.findAllObjavljenji();
-		return new ResponseEntity<List<Komentar>>(allKomentari, HttpStatus.OK);
-	}*/
+		HttpHeaders headers = new HttpHeaders();
+		long komentariTotal = allKomentari.getTotalElements();
+		headers.add("X-Total-Count", String.valueOf(komentariTotal));
+
+		return new ResponseEntity<>(allKomentari.getContent(), headers, HttpStatus.OK);
+	}
 	
 }

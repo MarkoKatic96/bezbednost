@@ -111,7 +111,7 @@ public class RezervacijaService {
 		return null;
 	}
 	
-	/*SmestajiRestTemplate srt = restTemplate.getForObject("http://smestaj-service/smestaj-service/smestaj-korisnik/all", SmestajiRestTemplate.class);
+	/*SmestajiRestTemplate srt = restTemplate.getForObject("https://smestaj-service/smestaj-service/smestaj-korisnik/all", SmestajiRestTemplate.class);
 	List<SmestajKorisnikDTO> smestaji = new ArrayList<SmestajKorisnikDTO>();
 	for (SmestajKorisnikDTO smestajKorisnikDTO : smestaji) {
 		if(smestajKorisnikDTO.getIdSmestaja()==rezervacija.get().getSmestajId()) {

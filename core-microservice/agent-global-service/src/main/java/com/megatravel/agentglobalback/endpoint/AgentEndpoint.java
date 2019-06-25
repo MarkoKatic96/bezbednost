@@ -3,6 +3,7 @@ package com.megatravel.agentglobalback.endpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
@@ -40,7 +41,7 @@ public class AgentEndpoint {
 	@Autowired
 	NeaktiviranAgentService neaktiviranAgentService;
 	
-	
+	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "getAgentRequest")
 	@ResponsePayload
 	public GetAgentResponse getAgent(@RequestPayload GetAgentRequest request) {
@@ -55,6 +56,7 @@ public class AgentEndpoint {
 		return response;
 	}
 	
+	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "getAgentByEmailRequest")
 	@ResponsePayload
 	public GetAgentByEmailResponse getAgentByEmail(@RequestPayload GetAgentByEmailRequest request) {
@@ -66,6 +68,7 @@ public class AgentEndpoint {
 		return response;
 	}
 	
+	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "editRequest")
 	@ResponsePayload
 	public EditResponse edit(@RequestPayload EditRequest request) {
@@ -148,6 +151,7 @@ public class AgentEndpoint {
 		return response;
 	}
 	
+	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "validateTokenRequest")
 	@ResponsePayload
 	public ValidateTokenResponse validateToken(@RequestPayload ValidateTokenRequest request) {

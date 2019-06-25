@@ -18,5 +18,4 @@ public interface KomentarRepository extends JpaRepository<Komentar, Long> {
 
 	@Query(value= "SELECT DISTINCT k FROM Komentar k WHERE (k.status = 'OBJAVLJEN' AND k.idSmestaja=?1) ORDER BY k.timestamp DESC")
 	Page<Komentar> findAllObjavljenjiForSmestaj(Long idSmestaja, Pageable page);
-
 }

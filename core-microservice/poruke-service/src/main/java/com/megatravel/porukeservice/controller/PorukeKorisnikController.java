@@ -47,12 +47,14 @@ public class PorukeKorisnikController {
 	RestTemplate restTemplate;
 	
 	@PreAuthorize("hasAnyRole('ROLE_KORISNIK')")
-	@RequestMapping(value = "/{agentId}/{token}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<PorukaDTO>> getPorukeWithAgent(@PathVariable("agentId") Long agentId, @PathVariable("token") String token, Pageable page) {
+	@RequestMapping(value = "/{agentId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<PorukaDTO>> getPorukeWithAgent(@PathVariable("agentId") Long agentId, HttpServletRequest req, Pageable page) {
 		System.out.println("getPorukeWithAgent()");
 	
-		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("http://korisnik-service/korisnik-service/getKorisnikByToken/"+token, Korisnik.class);
+		String token = jwtTokenUtils.resolveToken(req);
+		String email = jwtTokenUtils.getUsername(token);
 		
+		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("https://korisnik-service/korisnik/"+email, Korisnik.class);
 		if (korisnikEntity.getStatusCode() != HttpStatus.OK) {
 			return null;
 		}
@@ -82,12 +84,14 @@ public class PorukeKorisnikController {
 	}
 	
 	@PreAuthorize("hasAnyRole('ROLE_KORISNIK')")
-	@RequestMapping(value = "/neprocitane/{token}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<PorukaDTO>> getNeprocitanePoruke(Pageable page, @PathVariable("token") String token) {
+	@RequestMapping(value = "/neprocitane", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<PorukaDTO>> getNeprocitanePoruke(Pageable page, HttpServletRequest req) {
 		System.out.println("getNeprocitanePoruke()");
 		
-		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("http://korisnik-service/korisnik-service/getKorisnikByToken/"+token, Korisnik.class);
+		String token = jwtTokenUtils.resolveToken(req);
+		String email = jwtTokenUtils.getUsername(token);
 		
+		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("https://korisnik-service/korisnik/"+email, Korisnik.class);
 		if (korisnikEntity.getStatusCode() != HttpStatus.OK) {
 			return null;
 		}
@@ -120,7 +124,7 @@ public class PorukeKorisnikController {
 		String token = jwtTokenUtils.resolveToken(req);
 		String email = jwtTokenUtils.getUsername(token);
 		
-		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("http://korisnik-service/korisnik/"+email, Korisnik.class);
+		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("https://korisnik-service/korisnik/"+email, Korisnik.class);
 		if (korisnikEntity.getStatusCode() != HttpStatus.OK) {
 			return null;
 		}
@@ -141,11 +145,14 @@ public class PorukeKorisnikController {
 	}
 	
 	@PreAuthorize("hasAnyRole('ROLE_KORISNIK')")
-	@RequestMapping(value = "/posalji/{token}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> sendPoruka(@RequestBody NovaPorukaDTO novaPoruka, @PathVariable("token") String token) {
+	@RequestMapping(value = "/posalji", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> sendPoruka(@RequestBody NovaPorukaDTO novaPoruka, HttpServletRequest req) {
 		System.out.println("sendPoruka()");
 		
-		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("http://korisnik-service/korisnik-service/getKorisnikByToken/"+token, Korisnik.class);
+		String token = jwtTokenUtils.resolveToken(req);
+		String email = jwtTokenUtils.getUsername(token);
+		
+		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("https://korisnik-service/korisnik/"+email, Korisnik.class);
 		if (korisnikEntity.getStatusCode() != HttpStatus.OK) {
 			return null;
 		}

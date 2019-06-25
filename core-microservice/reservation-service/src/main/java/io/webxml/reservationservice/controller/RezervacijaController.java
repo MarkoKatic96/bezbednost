@@ -16,10 +16,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import io.webxml.reservationservice.dto.RezervacijaDTO;
 import io.webxml.reservationservice.model.Korisnik;
 import io.webxml.reservationservice.model.Rezervacija;
-import io.webxml.reservationservice.model.RezervacijeRestTemplate;
 import io.webxml.reservationservice.model.SamostalnaRezervacija;
 import io.webxml.reservationservice.model.SamostalnaRezervacijaRestTemplate;
 import io.webxml.reservationservice.model.StatusRezervacije;
@@ -50,8 +48,8 @@ public class RezervacijaController {
 	@Autowired
 	JwtTokenUtils jwtTokenUtils;
 	
-	//ovo samo admin moze da vidi. Treba zastititi
-	@PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+	/*
+	@PreAuthorize("hasAnyRole('ROLE_KORISNIK')")
 	@RequestMapping(value = "/rezervacije")
 	public ResponseEntity<RezervacijeRestTemplate> getAllReservations(){
 		List<Rezervacija> rezervacije = rezervacijaService.getAllReservations();
@@ -59,7 +57,8 @@ public class RezervacijaController {
 		rrt.setRezervacijaList(rezervacije);
 		return (!rezervacije.isEmpty()) ? new ResponseEntity<RezervacijeRestTemplate>(rrt, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
-	
+	*/
+	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "/samostalneRezervacije")
 	public ResponseEntity<SamostalnaRezervacijaRestTemplate> getAllAgentReservations(){
 		List<SamostalnaRezervacija> rezervacije = srs.findAll();
@@ -68,30 +67,48 @@ public class RezervacijaController {
 		return (!rezervacije.isEmpty()) ? new ResponseEntity<SamostalnaRezervacijaRestTemplate>(rrt, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 	
-	@RequestMapping(value = "/rezervacije/{token}")
-	public ResponseEntity<List<Rezervacija>> getAllReservationsFromUser(@PathVariable("token") String token){
+	@PreAuthorize("hasAnyRole('ROLE_KORISNIK')")
+	@RequestMapping(value = "/rezervacije")
+	public ResponseEntity<List<Rezervacija>> getAllReservationsFromUser(HttpServletRequest req){
 		
-		Korisnik k = restTemplate.getForObject("http://korisnik-service/korisnik-service/getKorisnikByToken/" + token, Korisnik.class);
+		String token = jwtTokenUtils.resolveToken(req);
+		String email = jwtTokenUtils.getUsername(token);
 		
-		if(k!=null) {
-			List<Rezervacija> rezervacije = rezervacijaService.getAllReservationsFromUser(k.getIdKorisnik());
-			return (!rezervacije.isEmpty()) ? new ResponseEntity<List<Rezervacija>>(rezervacije, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}else {
+		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("https://korisnik-service/korisnik/"+email, Korisnik.class);
+		if (korisnikEntity.getStatusCode() != HttpStatus.OK) {
+			return null;
+		}
+		
+		Korisnik korisnik = korisnikEntity.getBody();
+		if (korisnik == null) {			
 			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 		}
+		
+		List<Rezervacija> rezervacije = rezervacijaService.getAllReservationsFromUser(korisnik.getIdKorisnik());
+		return (!rezervacije.isEmpty()) ? new ResponseEntity<List<Rezervacija>>(rezervacije, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 	
-	//ovako radi ali vrv nije dobra praksa ovako raditi
 	@PreAuthorize("hasAnyRole('ROLE_KORISNIK')")
-	@RequestMapping(value = "/rezervisi/{token}", method = RequestMethod.POST, consumes = "application/json")
-	public ResponseEntity<?> reserve(@PathVariable("token") String token, @RequestBody Rezervacija rezervacija){
+	@RequestMapping(value = "/rezervisi", method = RequestMethod.POST, consumes = "application/json")
+	public ResponseEntity<?> reserve(@RequestBody Rezervacija rezervacija, HttpServletRequest req){
+		
+		String token = jwtTokenUtils.resolveToken(req);
+		String email = jwtTokenUtils.getUsername(token);
+		
+		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("https://korisnik-service/korisnik/"+email, Korisnik.class);
+		if (korisnikEntity.getStatusCode() != HttpStatus.OK || korisnikEntity.getBody()==null) {
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		}
 		
 		Valid v = new RezervacijaValidator().validate(rezervacija);
 		if (!v.isValid()) {
 			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		if (rezervacija.getStatusRezervacije()!=StatusRezervacije.KREIRANA) {
-			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
+			return new ResponseEntity<>(new Valid(false, "STATUS_INVALID"), HttpStatus.UNPROCESSABLE_ENTITY);
+		}
+		if (rezervacija.getKorisnikId()!=korisnikEntity.getBody().getIdKorisnik()) {
+			return new ResponseEntity<>(new Valid(false, "KORISNIK_INVALID"),HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		
 		Rezervacija r = rezervacijaService.reserve(rezervacija);
@@ -100,19 +117,23 @@ public class RezervacijaController {
 	}
 	
 	@PreAuthorize("hasAnyRole('ROLE_KORISNIK')")
-	@RequestMapping(value = "/otkazi/{id}/{token}", method = RequestMethod.DELETE)
-	public ResponseEntity<Rezervacija> otkazi(@PathVariable("id") Long id, @PathVariable("token") String token, HttpServletRequest req){
+	@RequestMapping(value = "/otkazi/{id}", method = RequestMethod.DELETE)
+	public ResponseEntity<Rezervacija> otkazi(@PathVariable("id") Long id, HttpServletRequest req){
 		
-		Korisnik k = restTemplate.getForObject("http://korisnik-service/korisnik-service/getKorisnikByToken/" + token, Korisnik.class);
-
-		if(k==null) {
-			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+		String token = jwtTokenUtils.resolveToken(req);
+		String email = jwtTokenUtils.getUsername(token);
+		
+		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("https://korisnik-service/korisnik/"+email, Korisnik.class);
+		if (korisnikEntity.getStatusCode() != HttpStatus.OK || korisnikEntity.getBody()==null) {
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 		
-		Rezervacija r = rezervacijaService.otkaziRezervaciju(id, k.getIdKorisnik());
+		Rezervacija r = rezervacijaService.otkaziRezervaciju(id, korisnikEntity.getBody().getIdKorisnik());
 		return (r!=null) ? new ResponseEntity<Rezervacija>(r, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 	
+	//TODO: Pogledati gde se koristi
+	/*
 	@RequestMapping(value = "/rezervacija/status/{id}", method = RequestMethod.GET)
 	public ResponseEntity<RezervacijaDTO> wtf(@PathVariable("id") Long id){
 		
@@ -121,7 +142,6 @@ public class RezervacijaController {
 			return new ResponseEntity<RezervacijaDTO>(new RezervacijaDTO(r), HttpStatus.OK);
 		}
 		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		
-		
 	}
+	*/
 }

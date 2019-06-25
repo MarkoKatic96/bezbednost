@@ -119,7 +119,7 @@
                     <generatePackage>com.megatravel.agentlocalbackend.wsdl</generatePackage>
                     <schemas>
                         <schema>
-                            <url>http://localhost:8400/ws/agents.wsdl</url>
+                            <url>https://localhost:8400/ws/agents.wsdl</url>
                         </schema>
                     </schemas>
                 </configuration>
@@ -149,7 +149,7 @@
 			                <outputDirectory>${project.build.directory}/schemas</outputDirectory>
 			                <transformSchemas>
 						      <transformSchema>
-						        <uri>http://megatravel.com</uri>
+						        <uri>https://megatravel.com</uri>
 						        <toFile>agentService.xsd</toFile>
 						      </transformSchema>
 						    </transformSchemas>

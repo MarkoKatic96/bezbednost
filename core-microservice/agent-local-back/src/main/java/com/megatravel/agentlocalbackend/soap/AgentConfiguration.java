@@ -21,7 +21,7 @@ public class AgentConfiguration {
 	@Primary
 	public AgentClient agentClient(Jaxb2Marshaller marshaller) {
 		AgentClient client = new AgentClient();
-		client.setDefaultUri("http://localhost:8400/ws");
+		client.setDefaultUri("https://localhost:8400/ws");
 		client.setMarshaller(marshaller);
 		client.setUnmarshaller(marshaller);
 		return client;

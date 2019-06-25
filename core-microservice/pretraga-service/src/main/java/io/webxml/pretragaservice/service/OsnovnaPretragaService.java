@@ -28,7 +28,7 @@ public class OsnovnaPretragaService {
 	private RestTemplate restTemplate;
 	
 	public List<SmestajKorisnikDTO> osnovnaPretragaSmestaji(OsnovnaPretraga op){
-		SmestajiRestTemplate srt = restTemplate.getForObject("http://smestaj-service/smestaj-service/smestaj-korisnik/all", SmestajiRestTemplate.class);
+		SmestajiRestTemplate srt = restTemplate.getForObject("https://smestaj-service/smestaj-service/smestaj-korisnik/all", SmestajiRestTemplate.class);
 		List<SmestajKorisnikDTO> lista = new ArrayList<SmestajKorisnikDTO>();
 		List<SmestajKorisnikDTO> listaSmestaja = new ArrayList<SmestajKorisnikDTO>();
 		List<SmestajKorisnikDTO> returnLista = new ArrayList<SmestajKorisnikDTO>();
@@ -63,9 +63,9 @@ public class OsnovnaPretragaService {
 		}
 		
 		if(op.getDatumDolaska()!=null && op.getDatumPolaska()!=null && op.getDatumDolaska().before(op.getDatumPolaska())) {
-			RezervacijeRestTemplate rrt = restTemplate.getForObject("http://reservation-service/reservation-service/rezervacije", RezervacijeRestTemplate.class);
+			RezervacijeRestTemplate rrt = restTemplate.getForObject("https://reservation-service/reservation-service/rezervacije", RezervacijeRestTemplate.class);
 			rezervacije = rrt.getRezervacijaList();//sve rezervacije
-			SamostalnaRezervacijaRestTemplate srrt = restTemplate.getForObject("http://reservation-service/reservation-service/samostalneRezervacije", SamostalnaRezervacijaRestTemplate.class);
+			SamostalnaRezervacijaRestTemplate srrt = restTemplate.getForObject("https://reservation-service/reservation-service/samostalneRezervacije", SamostalnaRezervacijaRestTemplate.class);
 			samostalne = srrt.getSamostalnaRezervacijaList();//sve rezervacije
 			int zauzeto=0;
 			for (SmestajKorisnikDTO smestaj : returnLista) {
@@ -111,7 +111,7 @@ public class OsnovnaPretragaService {
 		if(op.getUdaljenost()>0) {
 			for (SmestajKorisnikDTO smestaj : returnLista) {
 				BigDecimal bd = new BigDecimal(0);
-				bd = restTemplate.getForObject("http://smestaj-service/smestaj-service/smestaj-korisnik/rastojanje/" + smestaj.getIdSmestaja(), BigDecimal.class);
+				bd = restTemplate.getForObject("https://smestaj-service/smestaj-service/smestaj-korisnik/rastojanje/" + smestaj.getIdSmestaja(), BigDecimal.class);
 				Double big = bd.doubleValue();
 				int bdInt = big.intValue();
 				if(bdInt<=op.getUdaljenost()) {
@@ -189,7 +189,7 @@ public class OsnovnaPretragaService {
 				returnLista = compareCategoryAscending(returnLista);
 			}else if(sort.equals("udaljenost")) {
 				for (SmestajKorisnikDTO smestajKorisnikDTO : returnLista) {
-					BigDecimal srt = restTemplate.getForObject("http://smestaj-service/smestaj-service/smestaj-korisnik/rastojanje/" + smestajKorisnikDTO.getIdSmestaja(), BigDecimal.class);
+					BigDecimal srt = restTemplate.getForObject("https://smestaj-service/smestaj-service/smestaj-korisnik/rastojanje/" + smestajKorisnikDTO.getIdSmestaja(), BigDecimal.class);
 					smestajKorisnikDTO.setLatitude(srt);
 				}
 				Collections.sort(returnLista, new Comparator<SmestajKorisnikDTO>() {

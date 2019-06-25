@@ -28,7 +28,7 @@ public class AgentClient extends WebServiceGatewaySupport {
 		log.info("Requesting agent with id " + id);
 
 		Object o = getWebServiceTemplate()
-				.marshalSendAndReceive("http://localhost:8400/ws/agents", request,
+				.marshalSendAndReceive("https://localhost:8400/ws/agents", request,
 						new SoapActionCallback(
 								"https://megatravel.com/GetAgentRequest"));
 		GetAgentResponse response =  (GetAgentResponse)o;
@@ -44,7 +44,7 @@ public class AgentClient extends WebServiceGatewaySupport {
 		log.info("Requesting agent with email " + email);
 
 		GetAgentByEmailResponse response = (GetAgentByEmailResponse) getWebServiceTemplate()
-				.marshalSendAndReceive("http://localhost:8400/ws/agents", request,
+				.marshalSendAndReceive("https://localhost:8400/ws/agents", request,
 						new SoapActionCallback(
 								"https://megatravel.com/GetAgentByEmailRequest"));
 
@@ -57,7 +57,7 @@ public class AgentClient extends WebServiceGatewaySupport {
 		request.setAgentRegistracijaDTO(agentRegistracijaDTO);
 
 		SignUpResponse response = (SignUpResponse) getWebServiceTemplate()
-				.marshalSendAndReceive("http://localhost:8400/ws/agents", request,
+				.marshalSendAndReceive("https://localhost:8400/ws/agents", request,
 						new SoapActionCallback(
 								"https://megatravel.com/SignUpRequest"));
 
@@ -70,7 +70,7 @@ public class AgentClient extends WebServiceGatewaySupport {
 		request.setAgent(agent);
 
 		EditResponse response = (EditResponse) getWebServiceTemplate()
-				.marshalSendAndReceive("http://localhost:8400/ws/agents", request,
+				.marshalSendAndReceive("https://localhost:8400/ws/agents", request,
 						new SoapActionCallback(
 								"https://megatravel.com/EditRequest"));
 

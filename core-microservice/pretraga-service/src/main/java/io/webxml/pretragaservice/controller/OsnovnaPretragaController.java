@@ -25,14 +25,14 @@ public class OsnovnaPretragaController {
 	@RequestMapping(value = "/pretraga", method = RequestMethod.POST, consumes = "application/json")
 	public List<SmestajKorisnikDTO> getFilteredSmestaj(@RequestBody OsnovnaPretraga op){	
 		//uzimam sve smestaje iz korisnik-api
-		//RezervacijeRestTemplate rrt = restTemplate.getForObject("http://reservation-service/rezervacije", RezervacijeRestTemplate.class);
+		//RezervacijeRestTemplate rrt = restTemplate.getForObject("https://reservation-service/rezervacije", RezervacijeRestTemplate.class);
 		return osnovnaPretragaService.osnovnaPretragaSmestaji(op);
 	}
 	
 	@RequestMapping(value = "/sort/{tip}", method = RequestMethod.POST, consumes = "application/json")
 	public List<SmestajKorisnikDTO> sortSmestaj(@RequestBody List<SmestajKorisnikDTO> lista, @PathVariable("tip") String sort){	
 		//uzimam sve smestaje iz korisnik-api
-		//RezervacijeRestTemplate rrt = restTemplate.getForObject("http://reservation-service/rezervacije", RezervacijeRestTemplate.class);
+		//RezervacijeRestTemplate rrt = restTemplate.getForObject("https://reservation-service/rezervacije", RezervacijeRestTemplate.class);
 		return osnovnaPretragaService.sortSmestaji(lista, sort);
 	}
 	

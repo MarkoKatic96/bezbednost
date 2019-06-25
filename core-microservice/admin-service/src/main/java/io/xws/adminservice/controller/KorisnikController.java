@@ -1,5 +1,6 @@
 package io.xws.adminservice.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.xws.adminservice.dto.KorisnikDTO;
 import io.xws.adminservice.model.Korisnik;
 import io.xws.adminservice.service.KorisnikService;
 
@@ -31,6 +33,7 @@ public class KorisnikController
 	/*
 	 * Vraca sve korisnike, generalni spisak
 	 */
+	/*
 	@PreAuthorize("hasAnyRole('ROLE_ADMIN')")
 	@GetMapping("/all")
 	public ResponseEntity<List<Korisnik>> getAllKorisnici()
@@ -41,20 +44,22 @@ public class KorisnikController
 		
 		return (neaktivirani.isEmpty()) ? new ResponseEntity<>(null, HttpStatus.NOT_FOUND) : new ResponseEntity<List<Korisnik>>(neaktivirani, HttpStatus.OK);
 	}
-	
+	*/
 	/*
 	 * Vraca sve aktivirane neblokirane (ZA BLOKIRANJE, BRISANJE)
 	 * Moraju biti aktivirani!
 	 */
 	@PreAuthorize("hasAnyRole('ROLE_ADMIN')")
 	@GetMapping("/allactivated")
-	public ResponseEntity<List<Korisnik>> getAllAktiviraniKorisnici()
+	public ResponseEntity<List<KorisnikDTO>> getAllAktiviraniKorisnici()
 	{
 		System.out.println("getAllAktiviraniKorisnici()");
 		
-		List<Korisnik> neaktivirani = adminService.getAllAktiviraniKorisnici();
-		
-		return (neaktivirani.isEmpty()) ? new ResponseEntity<>(null, HttpStatus.NOT_FOUND) : new ResponseEntity<List<Korisnik>>(neaktivirani, HttpStatus.OK);
+		List<KorisnikDTO> neaktivirani = new ArrayList<KorisnikDTO>();
+		for (Korisnik korisnik : adminService.getAllAktiviraniKorisnici()) {
+			neaktivirani.add(new KorisnikDTO(korisnik));
+		}
+		return (neaktivirani.isEmpty()) ? new ResponseEntity<>(null, HttpStatus.NOT_FOUND) : new ResponseEntity<List<KorisnikDTO>>(neaktivirani, HttpStatus.OK);
 	}
 	
 	/*
@@ -62,13 +67,15 @@ public class KorisnikController
 	 */
 	@PreAuthorize("hasAnyRole('ROLE_ADMIN')")
 	@GetMapping("/allnotactivated")
-	public ResponseEntity<List<Korisnik>> getAllNeaktiviraniKorisnici()
+	public ResponseEntity<List<KorisnikDTO>> getAllNeaktiviraniKorisnici()
 	{
 		System.out.println("getAllNeaktiviraniKorisnici()");
 		
-		List<Korisnik> neaktivirani = adminService.getAllNeaktiviraniKorisnici();
-		
-		return (neaktivirani.isEmpty()) ? new ResponseEntity<>(null, HttpStatus.NOT_FOUND) : new ResponseEntity<List<Korisnik>>(neaktivirani, HttpStatus.OK);
+		List<KorisnikDTO> neaktivirani = new ArrayList<KorisnikDTO>();
+		for (Korisnik korisnik : adminService.getAllNeaktiviraniKorisnici()) {
+			neaktivirani.add(new KorisnikDTO(korisnik));
+		}
+		return (neaktivirani.isEmpty()) ? new ResponseEntity<>(null, HttpStatus.NOT_FOUND) : new ResponseEntity<List<KorisnikDTO>>(neaktivirani, HttpStatus.OK);
 	}
 
 	/*
@@ -76,13 +83,15 @@ public class KorisnikController
 	 */
 	@PreAuthorize("hasAnyRole('ROLE_ADMIN')")
 	@GetMapping("/allblocked")
-	public ResponseEntity<List<Korisnik>> getAllBlokiraniKorisnici()
+	public ResponseEntity<List<KorisnikDTO>> getAllBlokiraniKorisnici()
 	{
 		System.out.println("getAllBlokiraniKorisnici()");
 		
-		List<Korisnik> neaktivirani = adminService.getAllBlokiraniKorisnici();
-		
-		return (neaktivirani.isEmpty()) ? new ResponseEntity<>(null, HttpStatus.NOT_FOUND) : new ResponseEntity<List<Korisnik>>(neaktivirani, HttpStatus.OK);
+		List<KorisnikDTO> neaktivirani = new ArrayList<KorisnikDTO>();
+		for (Korisnik korisnik : adminService.getAllBlokiraniKorisnici()) {
+			neaktivirani.add(new KorisnikDTO(korisnik));
+		}
+		return (neaktivirani.isEmpty()) ? new ResponseEntity<>(null, HttpStatus.NOT_FOUND) : new ResponseEntity<List<KorisnikDTO>>(neaktivirani, HttpStatus.OK);
 	}
 	
 	////////////////////////////////////////////////////////

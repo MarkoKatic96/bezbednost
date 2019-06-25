@@ -53,7 +53,7 @@ public class JwtTokenUtil implements Serializable {
         
         return Jwts.builder()
                 .setClaims(claims)
-                .setIssuer("http://megatravel.com")
+                .setIssuer("https://megatravel.com")
                 .setIssuedAt(now)
                 .setExpiration(validUntil)
                 .signWith(SignatureAlgorithm.HS256, jwtKey)

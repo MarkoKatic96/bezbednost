@@ -18,7 +18,7 @@ import io.webxml.korisnikservice.service.KorisnikService;
 import io.webxml.korisnikservice.validators.Valid;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://localhost:3000")
 @RequestMapping("/korisnik-service")
 public class KorisnikController {
 
@@ -52,7 +52,6 @@ public class KorisnikController {
 	}
 	*/
 	
-	@PreAuthorize("hasAnyRole('ROLE_KORISNIK')")
 	@RequestMapping(value = "/register", method = RequestMethod.POST, consumes = "application/json")
 	public ResponseEntity<Valid> register(@RequestBody Korisnik korisnik){
 		Valid v = korisnikService.register(korisnik);

@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
@@ -40,6 +41,10 @@ public class AgentEndpoint {
 	
 	@Autowired
 	NeaktiviranAgentService neaktiviranAgentService;
+	
+	@Autowired
+	PasswordEncoder passwordEncoder;
+
 	
 	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "getAgentRequest")
@@ -100,6 +105,7 @@ public class AgentEndpoint {
 			}
 		}
 		
+		request.getAgent().setLozinka(passwordEncoder.encode(request.getAgent().getLozinka()));
 		response.setAgent(new AgentDTO(agentService.save(request.getAgent())));
 		return response;
 	}

@@ -62,5 +62,53 @@ public class ObjectFactory {
     public Agent createAgent() {
         return new Agent();
     }
+    
+    
+    
+    
+    
+    public ValidateTokenResponse createValidateTokenResponse() {
+    	return new ValidateTokenResponse();
+    }
+    
+    public ValidateTokenRequest createValidateTokenRequest() {
+    	return new ValidateTokenRequest();
+    }
+    
+    public TipSmestaja createTipSmestaja() {
+    	return new TipSmestaja();
+    }
+    
+    public TAdresa createTAdresa() {
+    	return new TAdresa();
+    }
+    
+    public Smestaj createSmestaj() {
+    	return new Smestaj();
+    }
+    
+    public SignUpResponse createSignUpResponse() {
+    	return new SignUpResponse();
+    }
+    
+    public SignUpRequest createSignUpRequest() {
+    	return new SignUpRequest();
+    }
+    
+    public SamostalnaRezervacija createSamostalnaRezervacija() {
+    	return new SamostalnaRezervacija();
+    }
+    
+    public Rezervacija createRezervacija() {
+    	return new Rezervacija();
+    }
+    
+    public Poruka createPoruka() {
+    	return new Poruka();
+    }
+ 
+    
+    
+    
 
 }

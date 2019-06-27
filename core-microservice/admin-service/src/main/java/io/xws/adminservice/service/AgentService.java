@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import io.xws.adminservice.model.Agent;
@@ -25,7 +26,8 @@ public class AgentService
 	@Autowired
 	private MailServiceImpl mailService;
 	
-	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 	
 	public List<NeaktiviranAgent> getAllZahteviNeregAgenata()
 	{
@@ -99,9 +101,6 @@ public class AgentService
 		agent.setPoslovniMaticniBroj(nereg.get().getPoslovniMaticniBroj());
 		agent.setDatumClanstva(new Date(id));
 		
-		neregRepo.delete(nereg.get());
-		agentRepo.save(agent);
-		
 		try {
 			mailService.sendNotificaitionAsync(agent);
 		} catch (MailException e) {
@@ -109,6 +108,12 @@ public class AgentService
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		
+		agent.setLozinka(passwordEncoder.encode(lozinka));
+		
+		neregRepo.delete(nereg.get());
+		agentRepo.save(agent);
+		
 		
 		return "OK";
 	}

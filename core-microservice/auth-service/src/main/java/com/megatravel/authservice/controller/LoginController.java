@@ -3,6 +3,7 @@ package com.megatravel.authservice.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,6 +31,9 @@ import com.megatravel.authservice.validators.Valid;
 public class LoginController {
 
 	@Autowired
+	PasswordEncoder passwordEncoder;
+	
+	@Autowired
     private JwtTokenUtil jwtTokenUtil;
     
 	@Autowired
@@ -56,7 +60,7 @@ public class LoginController {
 			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
 		}
     	
-    	final Admin user = adminRepository.findByEmailPassword(loginUser.getEmail().trim(), loginUser.getLozinka().trim());
+    	final Admin user = adminRepository.findByEmailPassword(loginUser.getEmail().trim(), passwordEncoder.encode(loginUser.getLozinka().trim()));
         if (user==null) {
         	return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
         }
@@ -76,7 +80,7 @@ public class LoginController {
 			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		
-		final Agent user = agentRepository.findByEmailPassword(loginUser.getEmail(), loginUser.getLozinka());
+		final Agent user = agentRepository.findByEmailPassword(loginUser.getEmail(), passwordEncoder.encode(loginUser.getLozinka()));
         if (user==null) {
         	return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
         }
@@ -96,7 +100,7 @@ public class LoginController {
 			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		
-		final Korisnik user = korisnikRepository.findByEmailPassword(loginUser.getEmail(), loginUser.getLozinka());
+		final Korisnik user = korisnikRepository.findByEmailPassword(loginUser.getEmail(), passwordEncoder.encode(loginUser.getLozinka()));
         if (user==null) {
         	return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
         }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,6 +53,9 @@ public class AgentController {
 	
 	@Autowired
 	RestTemplate restTemplate;
+	
+	@Autowired
+	PasswordEncoder passwordEncoder;
 	
 	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
@@ -128,7 +132,7 @@ public class AgentController {
 			a.setEmail(agentDTO.getEmail());
 			a.setIdAgenta(agentDTO.getIdAgenta());
 			a.setIme(agentDTO.getIme());
-			a.setLozinka(noviAgent.getLozinka());
+			a.setLozinka(passwordEncoder.encode(noviAgent.getLozinka()));
 			a.setPoslovniMaticniBroj(agentDTO.getPoslovniMaticniBroj());
 			a.setPrezime(agentDTO.getPrezime());
 			

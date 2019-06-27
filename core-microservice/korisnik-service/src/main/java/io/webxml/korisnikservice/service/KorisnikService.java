@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import io.webxml.korisnikservice.model.Korisnik;
@@ -17,6 +18,9 @@ public class KorisnikService {
 	
 	@Autowired
 	private KorisnikRepository korisnikRepository;
+	
+	@Autowired
+	PasswordEncoder passwordEncoder;
 
 	public List<Korisnik> getAllKorisnici(){
 		List<Korisnik> returnList = korisnikRepository.findAllKorisnici();
@@ -44,6 +48,7 @@ public class KorisnikService {
 		}
 		if(k==null) {
 			korisnik.setRola("KORISNIK");
+			korisnik.setLozinka(passwordEncoder.encode(korisnik.getLozinka()));
 			korisnik.setDatumClanstva(new Date());
 			korisnik.setBlokiran(false);
 			korisnik.setRegistrovan(false);

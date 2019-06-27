@@ -28,9 +28,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
     private JwtAuthenticationEntryPoint unauthorizedHandler;
     
-	@Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-    
 	@Override
     @Bean
     public AuthenticationManager authenticationManagerBean() throws Exception {      
@@ -39,7 +36,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     
 	@Autowired
     public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
     }
     @Bean
     public JwtAuthenticationFilter authenticationTokenFilterBean() throws Exception {

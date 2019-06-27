@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,6 +35,9 @@ public class AgentController {
 	
 	@Autowired
 	JwtTokenUtils jwtTokenUtils;
+	
+	@Autowired
+	PasswordEncoder passwordEncoder;
 
 	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
@@ -80,6 +84,7 @@ public class AgentController {
 			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 
+		agent.setLozinka(passwordEncoder.encode(agent.getLozinka()));
 		agent = agentService.save(noviAgent);
 		return new ResponseEntity<AgentDTO>(new AgentDTO(agent), HttpStatus.OK);
 	}

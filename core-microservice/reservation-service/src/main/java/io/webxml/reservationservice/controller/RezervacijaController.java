@@ -72,7 +72,6 @@ public class RezervacijaController {
 		return (!rezervacije.isEmpty()) ? new ResponseEntity<SamostalnaRezervacijaRestTemplate>(rrt, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 	
-	@PreAuthorize("hasAnyRole('ROLE_KORISNIK')")
 	@RequestMapping(value = "/rezervacije")
 	public ResponseEntity<List<Rezervacija>> getAllReservationsFromUser(HttpServletRequest req){
 		
@@ -93,7 +92,6 @@ public class RezervacijaController {
 		return (!rezervacije.isEmpty()) ? new ResponseEntity<List<Rezervacija>>(rezervacije, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 	
-	@PreAuthorize("hasAnyRole('ROLE_KORISNIK')")
 	@RequestMapping(value = "/rezervisi", method = RequestMethod.POST, consumes = "application/json")
 	public ResponseEntity<?> reserve(@RequestBody Rezervacija rezervacija, HttpServletRequest req){
 		
@@ -116,27 +114,7 @@ public class RezervacijaController {
 			
 			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
 		}
-		if (rezervacija.getStatusRezervacije()!=StatusRezervacije.KREIRANA) {
-			
-			if(req.getHeader("X-FORWARDED-FOR")==null)
-				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Time: {}", "reserve", req.getRemoteAddr(), req.getMethod(), rezervacija.getTimestamp());
-			else
-				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Time: {}", "reserve", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), rezervacija.getTimestamp());
-			
-			
-			return new ResponseEntity<>(new Valid(false, "STATUS_INVALID"), HttpStatus.UNPROCESSABLE_ENTITY);
-		}
-		if (rezervacija.getKorisnikId()!=korisnikEntity.getBody().getIdKorisnik()) {
-			
-			if(req.getHeader("X-FORWARDED-FOR")==null)
-				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Time: {}", "reserve", req.getRemoteAddr(), req.getMethod(), rezervacija.getTimestamp());
-			else
-				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Time: {}", "reserve", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), rezervacija.getTimestamp());
-			
-			
-			return new ResponseEntity<>(new Valid(false, "KORISNIK_INVALID"),HttpStatus.UNPROCESSABLE_ENTITY);
-		}
-		
+		rezervacija.setStatusRezervacije(StatusRezervacije.KREIRANA);
 		rezervacija.setKorisnikId(korisnikEntity.getBody().getIdKorisnik());
 		Rezervacija r = rezervacijaService.reserve(rezervacija);
 		
@@ -161,14 +139,13 @@ public class RezervacijaController {
 		
 	}
 	
-	@PreAuthorize("hasAnyRole('ROLE_KORISNIK')")
 	@RequestMapping(value = "/otkazi/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<Rezervacija> otkazi(@PathVariable("id") Long id, HttpServletRequest req){
 		
 		String token = jwtTokenUtils.resolveToken(req);
 		String email = jwtTokenUtils.getUsername(token);
 		
-		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("https://korisnik-service/korisnik/"+email, Korisnik.class);
+		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("https://korisnik-service/korisnik-service/korisnik/"+email, Korisnik.class);
 		if (korisnikEntity.getStatusCode() != HttpStatus.OK || korisnikEntity.getBody()==null) {
 			
 			if(req.getHeader("X-FORWARDED-FOR")==null)

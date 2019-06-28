@@ -27,8 +27,10 @@ import org.springframework.web.client.RestTemplate;
 import com.megatravel.ratingservice.dto.NoviKomentarDTO;
 import com.megatravel.ratingservice.dto.RezervacijaDTO;
 import com.megatravel.ratingservice.model.Komentar;
+import com.megatravel.ratingservice.model.Korisnik;
 import com.megatravel.ratingservice.model.StatusKomentara;
 import com.megatravel.ratingservice.model.StatusRezervacije;
+import com.megatravel.ratingservice.security.JwtTokenUtils;
 import com.megatravel.ratingservice.service.KomentarService;
 import com.megatravel.ratingservice.validators.KomentarValidator;
 import com.megatravel.ratingservice.validators.Valid;
@@ -44,12 +46,22 @@ public class KomentarController {
 	@Autowired
 	RestTemplate restTemplate;
 	
+	@Autowired
+	JwtTokenUtils jwtTokenUtils;
+	
 	Logger log = LogManager.getLogger(KomentarController.class);
 
-	@PreAuthorize("hasAnyRole('ROLE_KORISNIK')")
 	@RequestMapping(value = "/", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> createKomentar(@RequestBody NoviKomentarDTO noviKomentar, HttpServletRequest req){
 		System.out.println("createKomentar()");
+		
+		String token = jwtTokenUtils.resolveToken(req);
+		String email = jwtTokenUtils.getUsername(token);
+		
+		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("https://korisnik-service/korisnik-service/korisnik/"+email, Korisnik.class);
+		if (korisnikEntity.getStatusCode() != HttpStatus.OK || korisnikEntity.getBody()==null) {
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		}
 		
 		ResponseEntity<RezervacijaDTO> rezervacijaEntity = restTemplate.getForEntity("https://reservation-service/reservation-service/rezervacija/status/"+noviKomentar.getIdRezervacije(), RezervacijaDTO.class);
 		if (rezervacijaEntity.getStatusCode() != HttpStatus.OK) {

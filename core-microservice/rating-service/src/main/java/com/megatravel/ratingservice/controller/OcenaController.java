@@ -16,12 +16,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import com.megatravel.ratingservice.dto.NovaOcenaDTO;
+import com.megatravel.ratingservice.model.Korisnik;
 import com.megatravel.ratingservice.model.Ocena;
+import com.megatravel.ratingservice.security.JwtTokenUtils;
 import com.megatravel.ratingservice.service.OcenaService;
 import com.megatravel.ratingservice.validators.OcenaValidator;
 import com.megatravel.ratingservice.validators.Valid;
+
 
 @RestController
 @CrossOrigin(origins = "https://localhost:3000")
@@ -31,11 +35,24 @@ public class OcenaController {
 	@Autowired
 	OcenaService ocenaService;
 	
+	@Autowired
+	RestTemplate restTemplate;
+	
+	@Autowired
+	JwtTokenUtils jwtTokenUtils;
+	
 	Logger log = LogManager.getLogger(KomentarController.class);
-
-	@PreAuthorize("hasAnyRole('ROLE_KORISNIK')")
+	
 	@RequestMapping(value = "/new", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> createOcena(@RequestBody NovaOcenaDTO novaOcena, HttpServletRequest req){
+		
+		String token = jwtTokenUtils.resolveToken(req);
+		String email = jwtTokenUtils.getUsername(token);
+		
+		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("https://korisnik-service/korisnik-service/korisnik/"+email, Korisnik.class);
+		if (korisnikEntity.getStatusCode() != HttpStatus.OK || korisnikEntity.getBody()==null) {
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		}
 		
 		Ocena ocena = new Ocena(null, novaOcena.getIdSmestaj(), novaOcena.getIdRezervacija(), novaOcena.getIdKorisnik(), novaOcena.getOcena());
 		Valid v = new OcenaValidator().validate(ocena);

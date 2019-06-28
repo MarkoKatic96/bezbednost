@@ -50,14 +50,13 @@ public class KorisnikController {
 		return (k!=null) ? new ResponseEntity<KorisnikDTO>(new KorisnikDTO(k), HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 	
-	/*
-	@PreAuthorize("hasAnyRole('ROLE_KORISNIK')")
 	@RequestMapping("/korisnik/{email}")
 	public ResponseEntity<Korisnik> getKorisnikByEmail(@PathVariable("email") String email){
+		System.out.println("korisnik email");
 		Korisnik k = korisnikService.getKorisnikByEmail(email);
 		return (k!=null) ? new ResponseEntity<Korisnik>(k, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
-	*/
+	
 	
 	@RequestMapping(value = "/register", method = RequestMethod.POST, consumes = "application/json")
 	public ResponseEntity<Valid> register(@RequestBody Korisnik korisnik, HttpServletRequest req){

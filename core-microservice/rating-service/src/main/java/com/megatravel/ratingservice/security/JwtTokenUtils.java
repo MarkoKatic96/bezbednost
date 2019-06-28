@@ -24,8 +24,12 @@ public class JwtTokenUtils {
 		UserDetails userDetails = myUserDetails.loadUserByUsername(token);
 		return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails == null ? null : userDetails.getAuthorities());
 	}	
+	
+	public String getUsername(String token) {
+		return Jwts.parser().setSigningKey(jwtKey).parseClaimsJws(token).getBody().getSubject();
+	}
 
-	String resolveToken(HttpServletRequest req) {
+	public String resolveToken(HttpServletRequest req) {
 		String bearerToken = req.getHeader("Authorization");
 		if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
 			return bearerToken.substring(7, bearerToken.length());

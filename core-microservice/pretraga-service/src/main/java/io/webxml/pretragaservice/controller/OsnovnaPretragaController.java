@@ -15,7 +15,7 @@ import io.webxml.pretragaservice.model.OsnovnaPretraga;
 import io.webxml.pretragaservice.service.OsnovnaPretragaService;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://localhost:3000")
 @RequestMapping("pretraga-service")
 public class OsnovnaPretragaController {
 

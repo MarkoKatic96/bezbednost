@@ -39,7 +39,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 		http.cors().and().csrf().disable()                                       
         .authorizeRequests()
-        .antMatchers("/login/*", "/auth/**", "/auth/*", "/auth/login/**", "/auth/login/*").permitAll()
+        .antMatchers("/login/*", "/auth/**", "/auth/*", "/auth/login/**",
+        		"/auth/login/*", "/smestaj-service/smestaj-korisnik/all",
+        		"/smestaj-service/smestaj-korisnik/bll", "/smestaj-service/smestaj-korisnik/allTipovi", 
+        		"/smestaj-service/smestaj-korisnik/allKategorije",
+        		"/smestaj-service/smestaj-korisnik/allUsluge",
+        		"/smestaj-service/smestaj-korisnik/prosekLat/*",
+        		"/smestaj-service/smestaj-korisnik/prosekLong",
+        		"/smestaj-service/smestaj-korisnik/rastojanje/*").permitAll()
         .anyRequest().authenticated()
         .and()
         .sessionManagement()

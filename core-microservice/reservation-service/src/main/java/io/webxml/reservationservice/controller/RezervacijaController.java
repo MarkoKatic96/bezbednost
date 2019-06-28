@@ -29,7 +29,7 @@ import io.webxml.reservationservice.validators.RezervacijaValidator;
 import io.webxml.reservationservice.validators.Valid;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://localhost:3000")
 @RequestMapping("/reservation-service")
 public class RezervacijaController {
 	
@@ -111,6 +111,7 @@ public class RezervacijaController {
 			return new ResponseEntity<>(new Valid(false, "KORISNIK_INVALID"),HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		
+		rezervacija.setKorisnikId(korisnikEntity.getBody().getIdKorisnik());
 		Rezervacija r = rezervacijaService.reserve(rezervacija);
 		return (r!=null) ? new ResponseEntity<Rezervacija>(r, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);	
 		

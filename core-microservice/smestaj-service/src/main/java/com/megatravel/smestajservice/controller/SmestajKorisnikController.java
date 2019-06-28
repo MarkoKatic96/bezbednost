@@ -29,7 +29,7 @@ import com.megatravel.smestajservice.service.SmestajService;
 
 @RestController
 @RequestMapping("/smestaj-service/smestaj-korisnik/")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://localhost:3000")
 public class SmestajKorisnikController {
 	
 	@Autowired

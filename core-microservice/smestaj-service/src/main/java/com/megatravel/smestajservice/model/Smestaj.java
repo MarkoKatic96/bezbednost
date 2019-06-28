@@ -224,6 +224,7 @@ public class Smestaj {
 		this.cenaZima = cenaZima;
 	}
 
+	@JsonIgnore
 	public TKoordinate getKoordinate() {
 		return koordinate;
 	}

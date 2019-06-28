@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import io.xws.adminservice.model.Agent;
 import io.xws.adminservice.model.NeaktiviranAgent;
+import io.xws.adminservice.repository.AgentRepository;
 import io.xws.adminservice.repository.NeaktiviranAgentRepository;
 
 @Service

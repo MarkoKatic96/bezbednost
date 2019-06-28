@@ -3,6 +3,11 @@ package com.megatravel.ratingservice.controller;
 import java.util.List;
 import java.util.Optional;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +34,7 @@ import com.megatravel.ratingservice.validators.KomentarValidator;
 import com.megatravel.ratingservice.validators.Valid;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://localhost:3000")
 @RequestMapping("/rating-service/komentar")
 public class KomentarController {
 
@@ -38,25 +43,45 @@ public class KomentarController {
 	
 	@Autowired
 	RestTemplate restTemplate;
+	
+	Logger log = LogManager.getLogger(KomentarController.class);
 
 	@PreAuthorize("hasAnyRole('ROLE_KORISNIK')")
 	@RequestMapping(value = "/", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> createKomentar(@RequestBody NoviKomentarDTO noviKomentar){
+	public ResponseEntity<?> createKomentar(@RequestBody NoviKomentarDTO noviKomentar, HttpServletRequest req){
 		System.out.println("createKomentar()");
 		
 		ResponseEntity<RezervacijaDTO> rezervacijaEntity = restTemplate.getForEntity("https://reservation-service/reservation-service/rezervacija/status/"+noviKomentar.getIdRezervacije(), RezervacijaDTO.class);
 		if (rezervacijaEntity.getStatusCode() != HttpStatus.OK) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "createKomentar", req.getRemoteAddr(), req.getMethod());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "createKomentar", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
 			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 		}
 		
 		RezervacijaDTO rezervacija = rezervacijaEntity.getBody();
-		if (rezervacija == null) {			
+		if (rezervacija == null) {		
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "createKomentar", req.getRemoteAddr(), req.getMethod());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "createKomentar", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
 			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 		}
 		
 		if (rezervacija.getSmestajId()!=noviKomentar.getIdSmestaja() ||
 				rezervacija.getRezervacijaId()!=noviKomentar.getIdRezervacije() ||
 				rezervacija.getKorisnikId()!=noviKomentar.getIdKorisnika() || rezervacija.getStatusRezervacije()!=StatusRezervacije.POTVRDJENA) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "createKomentar", req.getRemoteAddr(), req.getMethod());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "createKomentar", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
 			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
 		}
 		
@@ -64,34 +89,69 @@ public class KomentarController {
 		
 		Valid v = new KomentarValidator().validate(komentar);
 		if (!v.isValid()) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "createKomentar", req.getRemoteAddr(), req.getMethod());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "createKomentar", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
 			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		
 		komentar = komentarService.save(komentar);
+		
+		if(req.getHeader("X-FORWARDED-FOR")==null)
+			log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "createKomentar", req.getRemoteAddr(), req.getMethod());
+		else
+			log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "createKomentar", req.getHeader("X-FORWARDED-FOR"));
+		
 		return new ResponseEntity<Komentar>(komentar, HttpStatus.CREATED);
 	}
 	
 	@PreAuthorize("hasAnyRole('ROLE_ADMIN')")
 	@RequestMapping(value = "/{id}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> blokirajObjaviKomentar(@RequestBody StatusKomentara statusKomentara, @PathVariable Long id){
+	public ResponseEntity<?> blokirajObjaviKomentar(@RequestBody StatusKomentara statusKomentara, @PathVariable Long id, HttpServletRequest req){
 		System.out.println("blokirajObjaviKomentar(" + statusKomentara + ")");
 		
 		Optional<Komentar> kom = komentarService.findById(id);
 		if (!kom.isPresent()) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "blokirajObjaviKomentar", req.getRemoteAddr(), req.getMethod());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "blokirajObjaviKomentar", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		
 		if (statusKomentara==null) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "blokirajObjaviKomentar", req.getRemoteAddr(), req.getMethod());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "blokirajObjaviKomentar", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
 			return new ResponseEntity<>(new Valid(false, "STATUS_NULL"),HttpStatus.UNPROCESSABLE_ENTITY); 
 		}
 		
 		if (statusKomentara==StatusKomentara.NEOBJAVLJEN) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "blokirajObjaviKomentar", req.getRemoteAddr(), req.getMethod());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "blokirajObjaviKomentar", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
 			return new ResponseEntity<>(new Valid(false, "STATUS_VALUE"),HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		
 		Komentar komentar = kom.get();
 		komentar.setStatus(statusKomentara);
 		komentar = komentarService.save(komentar);
+		
+		if(req.getHeader("X-FORWARDED-FOR")==null)
+			log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "blokirajObjaviKomentar", req.getRemoteAddr(), req.getMethod());
+		else
+			log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "blokirajObjaviKomentar", req.getHeader("X-FORWARDED-FOR"));
 		
 		return new ResponseEntity<Komentar>(komentar, HttpStatus.OK);
 	}

@@ -5,6 +5,10 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +44,8 @@ public class SmestajAgentController {
 	
 	@Autowired
 	JwtTokenUtils jwtTokenUtils;
+	
+	Logger log = LogManager.getLogger(SmestajAgentController.class);
 	
 	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "/all", method = RequestMethod.GET)
@@ -120,6 +126,13 @@ public class SmestajAgentController {
 		
 		Agent agent = agentEntity.getBody();
 		if (agent == null) {			
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Address: {}", "create", req.getRemoteAddr(), req.getMethod(), smestajDTO.getAdresa());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Address: {}", "create", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), smestajDTO.getAdresa());
+			
+			
 			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 		}
 		
@@ -142,10 +155,23 @@ public class SmestajAgentController {
 
 		Valid v = new SmestajValidator().validate(s);
 		if (!v.isValid()) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Address: {}", "create", req.getRemoteAddr(), req.getMethod(), smestajDTO.getAdresa());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Address: {}", "create", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), smestajDTO.getAdresa());
+			
+			
 			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		
 		Smestaj retVal = smestajService.save(s);
+		
+		if(req.getHeader("X-FORWARDED-FOR")==null)
+			log.info("Success - ProcessID: {} - IPAddress: {} - Type: {} - Address: {}", "create", req.getRemoteAddr(), req.getMethod(), smestajDTO.getAdresa());
+		else
+			log.info("Success - ProcessID: {} - IPAddress: {} - Type: {} - Address: {}", "create", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), smestajDTO.getAdresa());
+		
 
 		return new ResponseEntity<>(new SmestajDTO(retVal), HttpStatus.CREATED);
 	}
@@ -165,11 +191,25 @@ public class SmestajAgentController {
 		
 		Agent agent = agentEntity.getBody();
 		if (agent == null) {			
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Address: {}", "update", req.getRemoteAddr(), req.getMethod(), smestajDTO.getAdresa());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Address: {}", "update", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), smestajDTO.getAdresa());
+			
+			
 			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 		}
 		
 		Smestaj smestaj = smestajService.findOne(id, agent.getIdAgenta());
 		if (smestaj == null) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Address: {}", "update", req.getRemoteAddr(), req.getMethod(), smestajDTO.getAdresa());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Address: {}", "update", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), smestajDTO.getAdresa());
+			
+			
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 
@@ -177,10 +217,23 @@ public class SmestajAgentController {
 		
 		Valid v = new SmestajValidator().validate(smestaj);
 		if (!v.isValid()) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Address: {}", "update", req.getRemoteAddr(), req.getMethod(), smestajDTO.getAdresa());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Address: {}", "update", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), smestajDTO.getAdresa());
+			
+			
 			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 
 		Smestaj retVal = smestajService.save(smestaj);
+		
+		if(req.getHeader("X-FORWARDED-FOR")==null)
+			log.info("Success - ProcessID: {} - IPAddress: {} - Type: {} - Address: {}", "update", req.getRemoteAddr(), req.getMethod(), smestajDTO.getAdresa());
+		else
+			log.info("Success - ProcessID: {} - IPAddress: {} - Type: {} - Address: {}", "update", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), smestajDTO.getAdresa());
+		
 
 		return new ResponseEntity<>(new SmestajDTO(retVal), HttpStatus.OK);
 	}
@@ -199,16 +252,37 @@ public class SmestajAgentController {
 		}
 		
 		Agent agent = agentEntity.getBody();
-		if (agent == null) {			
+		if (agent == null) {		
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "delete", req.getRemoteAddr(), req.getMethod());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "delete", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
+			
 			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 		}
 		
 		Smestaj smestaj = smestajService.findOne(id,agent.getIdAgenta());
 		if (smestaj != null) {
 			smestajService.remove(id);
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "delete", req.getRemoteAddr(), req.getMethod());
+			else
+				log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "delete", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
+			
 			return new ResponseEntity<>(HttpStatus.OK);
 
 		} else {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "delete", req.getRemoteAddr(), req.getMethod());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "delete", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
+			
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}

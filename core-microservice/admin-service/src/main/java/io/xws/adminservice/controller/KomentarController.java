@@ -1,7 +1,10 @@
 package io.xws.adminservice.controller;
 
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,12 +24,14 @@ import io.xws.adminservice.service.KomentarService;
 
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://localhost:3000")
 @RequestMapping("/rating-service/admin")
 public class KomentarController 
 {
 	@Autowired
 	private KomentarService adminService;
+	
+	Logger log = LogManager.getLogger(KomentarController.class);
 	
 	//prikazi sve neobjavljene komentare
 	@PreAuthorize("hasAnyRole('ROLE_ADMIN')")
@@ -47,11 +52,28 @@ public class KomentarController
 	 */
 	@PreAuthorize("hasAnyRole('ROLE_ADMIN')")
 	@PutMapping("/publcomm/{id}")
-	public ResponseEntity<Boolean> updateObjaviKomentar(@PathVariable("id") Long id)
+	public ResponseEntity<Boolean> updateObjaviKomentar(@PathVariable("id") Long id, HttpServletRequest req)
 	{
 		System.out.println("updateObjaviKomentar()");
 		
-		return (!adminService.updateObjaviKomentar(id)) ? new ResponseEntity<Boolean>(false, HttpStatus.METHOD_NOT_ALLOWED) : new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED);
+		if(!adminService.updateObjaviKomentar(id))
+		{
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "updateObjaviKomentar", req.getRemoteAddr(), req.getMethod());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "updateObjaviKomentar", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
+			return new ResponseEntity<Boolean>(false, HttpStatus.METHOD_NOT_ALLOWED);
+		}
+		else
+		{
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "updateObjaviKomentar", req.getRemoteAddr(), req.getMethod());
+			else
+				log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "updateObjaviKomentar", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
+			return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED);
+		}
 	}
 	
 	
@@ -61,14 +83,32 @@ public class KomentarController
 	 */
 	@PreAuthorize("hasAnyRole('ROLE_ADMIN')")
 	@DeleteMapping("/blockcomm/{id}")
-	public ResponseEntity<Boolean> blockKomentar(@PathVariable("id") Long id)
+	public ResponseEntity<Boolean> blockKomentar(@PathVariable("id") Long id, HttpServletRequest req)
 	{
 		System.out.println("deleteKomentar()");
 		
-		return (!adminService.blockKomentar(id)) ? new ResponseEntity<Boolean>(false, HttpStatus.METHOD_NOT_ALLOWED) : new ResponseEntity<Boolean>(true, HttpStatus.OK);
+		if(!adminService.blockKomentar(id))
+		{
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "blockKomentar", req.getRemoteAddr(), req.getMethod());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "blockKomentar", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
+			return new ResponseEntity<Boolean>(false, HttpStatus.METHOD_NOT_ALLOWED);
+		}
+		else
+		{
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "blockKomentar", req.getRemoteAddr(), req.getMethod());
+			else
+				log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "blockKomentar", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
+			return new ResponseEntity<Boolean>(true, HttpStatus.OK);
+		}
 		
 	}
 	
+	//?
 	@PreAuthorize("hasAnyRole('ROLE_ADMIN')")
 	@RequestMapping(value = "/add", method = RequestMethod.POST, consumes = "application/json")
 	public Komentar getFilteredSmestaj(@RequestBody Komentar dto){	

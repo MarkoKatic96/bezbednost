@@ -4,6 +4,9 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,6 +47,8 @@ public class RezervacijaController {
 	
 	@Autowired
 	private RestTemplate restTemplate;
+	
+	Logger log = LogManager.getLogger(RezervacijaController.class);
 	
 	@Autowired
 	JwtTokenUtils jwtTokenUtils;
@@ -102,18 +107,57 @@ public class RezervacijaController {
 		
 		Valid v = new RezervacijaValidator().validate(rezervacija);
 		if (!v.isValid()) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Time: {}", "reserve", req.getRemoteAddr(), req.getMethod(), rezervacija.getTimestamp());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Time: {}", "reserve", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), rezervacija.getTimestamp());
+			
+			
 			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		if (rezervacija.getStatusRezervacije()!=StatusRezervacije.KREIRANA) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Time: {}", "reserve", req.getRemoteAddr(), req.getMethod(), rezervacija.getTimestamp());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Time: {}", "reserve", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), rezervacija.getTimestamp());
+			
+			
 			return new ResponseEntity<>(new Valid(false, "STATUS_INVALID"), HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		if (rezervacija.getKorisnikId()!=korisnikEntity.getBody().getIdKorisnik()) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Time: {}", "reserve", req.getRemoteAddr(), req.getMethod(), rezervacija.getTimestamp());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Time: {}", "reserve", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), rezervacija.getTimestamp());
+			
+			
 			return new ResponseEntity<>(new Valid(false, "KORISNIK_INVALID"),HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		
 		rezervacija.setKorisnikId(korisnikEntity.getBody().getIdKorisnik());
 		Rezervacija r = rezervacijaService.reserve(rezervacija);
-		return (r!=null) ? new ResponseEntity<Rezervacija>(r, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);	
+		
+		if(r != null)
+		{
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.info("Success - ProcessID: {} - IPAddress: {} - Type: {} - Time: {}", "reserve", req.getRemoteAddr(), req.getMethod(), rezervacija.getTimestamp());
+			else
+				log.info("Success - ProcessID: {} - IPAddress: {} - Type: {} - Time: {}", "reserve", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), rezervacija.getTimestamp());
+			
+			return  new ResponseEntity<Rezervacija>(r, HttpStatus.OK);
+		}
+		else
+		{
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Time: {}", "reserve", req.getRemoteAddr(), req.getMethod(), rezervacija.getTimestamp());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Time: {}", "reserve", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), rezervacija.getTimestamp());
+			
+			return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
 		
 	}
 	
@@ -126,11 +170,36 @@ public class RezervacijaController {
 		
 		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("https://korisnik-service/korisnik/"+email, Korisnik.class);
 		if (korisnikEntity.getStatusCode() != HttpStatus.OK || korisnikEntity.getBody()==null) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "otkazi", req.getRemoteAddr(), req.getMethod());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "otkazi", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 		
 		Rezervacija r = rezervacijaService.otkaziRezervaciju(id, korisnikEntity.getBody().getIdKorisnik());
-		return (r!=null) ? new ResponseEntity<Rezervacija>(r, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		
+		if(r != null)
+		{
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "otkazi", req.getRemoteAddr(), req.getMethod());
+			else
+				log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "otkazi", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
+			return  new ResponseEntity<Rezervacija>(r, HttpStatus.OK);
+		}
+		else
+		{
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "otkazi", req.getRemoteAddr(), req.getMethod());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "otkazi", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
+			return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		
 	}
 	
 	//TODO: Pogledati gde se koristi

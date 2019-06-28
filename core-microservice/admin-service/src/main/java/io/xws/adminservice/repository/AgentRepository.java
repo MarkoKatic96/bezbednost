@@ -1,4 +1,4 @@
-package io.xws.adminservice.service;
+package io.xws.adminservice.repository;
 
 import java.util.Optional;
 

@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +38,7 @@ import com.megatravel.porukeservice.validators.Valid;
 
 @RestController
 @RequestMapping("/poruke-korisnik-service/poruke")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://localhost:3000")
 public class PorukeKorisnikController {
 	
 	@Autowired
@@ -45,6 +49,8 @@ public class PorukeKorisnikController {
 	
 	@Autowired
 	RestTemplate restTemplate;
+	
+	Logger log = LogManager.getLogger(PorukeKorisnikController.class);
 	
 	@PreAuthorize("hasAnyRole('ROLE_KORISNIK')")
 	@RequestMapping(value = "/{agentId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -130,7 +136,13 @@ public class PorukeKorisnikController {
 		}
 		
 		Korisnik korisnik = korisnikEntity.getBody();
-		if (korisnik == null) {			
+		if (korisnik == null) {		
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "setProcitanePorukeFromAgent", req.getRemoteAddr(), req.getMethod());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "setProcitanePorukeFromAgent", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
 			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 		}
 		
@@ -140,6 +152,12 @@ public class PorukeKorisnikController {
 			p.setStatus(StatusPoruke.PROCITANA);
 			porukeService.save(p);
 		}
+		
+		if(req.getHeader("X-FORWARDED-FOR")==null)
+			log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "setProcitanePorukeFromAgent", req.getRemoteAddr(), req.getMethod());
+		else
+			log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "setProcitanePorukeFromAgent", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+		
 		
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
@@ -159,15 +177,35 @@ public class PorukeKorisnikController {
 		
 		Korisnik korisnik = korisnikEntity.getBody();
 		if (korisnik == null) {			
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Receiver: {}", "sendPoruka", req.getRemoteAddr(), req.getMethod(), novaPoruka.getPrimalac());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Receiver: {}", "sendPoruka", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), novaPoruka.getPrimalac());
+			
+			
 			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 		}
 		
 		Poruka poruka = new Poruka(null, korisnik.getIdKorisnik(), TipOsobe.KORISNIK, novaPoruka.getPrimalac(), TipOsobe.AGENT, novaPoruka.getSadrzaj(), StatusPoruke.POSLATA);
 		if (!Pattern.matches("[\\p{L}\\p{M}]+", poruka.getSadrzaj())) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Receiver: {}", "sendPoruka", req.getRemoteAddr(), req.getMethod(), novaPoruka.getPrimalac());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Receiver: {}", "sendPoruka", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), novaPoruka.getPrimalac());
+			
 			return new ResponseEntity<>(new Valid(false, "PORUKA_CHAR"), HttpStatus.UNPROCESSABLE_ENTITY);
+			
 		}
 		
 		Poruka retVal = porukeService.save(poruka);
+		
+		if(req.getHeader("X-FORWARDED-FOR")==null)
+			log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "sendPoruka", req.getRemoteAddr(), req.getMethod());
+		else
+			log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "sendPoruka", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+		
 		
 		return new ResponseEntity<>(new PorukaDTO(retVal), HttpStatus.CREATED);
 	}

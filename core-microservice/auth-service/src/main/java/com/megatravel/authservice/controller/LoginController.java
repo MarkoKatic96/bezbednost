@@ -1,5 +1,9 @@
 package com.megatravel.authservice.controller;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,13 +56,21 @@ public class LoginController {
 	
 	@Autowired
 	private RolaRepository rolaRepository;
+	
+	Logger log = LogManager.getLogger(LoginController.class);
     
 	@PostMapping("/admin")
-    public ResponseEntity<String> loginAdmin(@RequestBody LoginUser loginUser) throws Exception{
+    public ResponseEntity<String> loginAdmin(@RequestBody LoginUser loginUser, HttpServletRequest req) throws Exception{
     	System.out.println("neki dobar token za admina");
 
     	Valid v = new LoginUserValidator().validate(loginUser);
 		if (!v.isValid()) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Email: {}", "loginAdmin", req.getRemoteAddr(), req.getMethod(), loginUser.getEmail());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Email: {}", "loginAdmin", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), loginUser.getEmail());
+			
 			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
 		}
     	
@@ -70,15 +82,26 @@ public class LoginController {
         Rola rola = rolaRepository.findByNazivRole("ROLE_ADMIN");
         final String token = jwtTokenUtil.doGenerateToken(new User(user, rola));
         
+        if(req.getHeader("X-FORWARDED-FOR")==null)
+			log.info("Success - ProcessID: {} - IPAddress: {} - Type: {} - Email: {}", "loginAdmin", req.getRemoteAddr(), req.getMethod(), loginUser.getEmail());
+		else
+			log.info("Success - ProcessID: {} - IPAddress: {} - Type: {} - Email: {}", "loginAdmin", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), loginUser.getEmail());
+        
         return ResponseEntity.ok(token);
     }
 	
 	@PostMapping("/agent")
-    public ResponseEntity<String> loginAgent(@RequestBody LoginUser loginUser) throws Exception{
+    public ResponseEntity<String> loginAgent(@RequestBody LoginUser loginUser, HttpServletRequest req) throws Exception{
     	System.out.println("neki dobar token za agenta");
 
     	Valid v = new LoginUserValidator().validate(loginUser);
 		if (!v.isValid()) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Email: {}", "loginAgent", req.getRemoteAddr(), req.getMethod(), loginUser.getEmail());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Email: {}", "loginAgent", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), loginUser.getEmail());
+			
 			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		
@@ -90,15 +113,26 @@ public class LoginController {
         Rola rola = rolaRepository.findByNazivRole("ROLE_AGENT");
         final String token = jwtTokenUtil.doGenerateToken(new User(user, rola));
         
+        if(req.getHeader("X-FORWARDED-FOR")==null)
+			log.info("Success - ProcessID: {} - IPAddress: {} - Type: {} - Email: {}", "loginAgent", req.getRemoteAddr(), req.getMethod(), loginUser.getEmail());
+		else
+			log.info("Success - ProcessID: {} - IPAddress: {} - Type: {} - Email: {}", "loginAgent", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), loginUser.getEmail());
+        
         return ResponseEntity.ok(token);
     }
 	
 	@PostMapping("/korisnik")
-    public ResponseEntity<String> loginKorisnik(@RequestBody LoginUser loginUser) throws Exception{
+    public ResponseEntity<String> loginKorisnik(@RequestBody LoginUser loginUser, HttpServletRequest req) throws Exception{
     	System.out.println("neki dobar token za korisnika");
 
     	Valid v = new LoginUserValidator().validate(loginUser);
 		if (!v.isValid()) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Email: {}", "loginKorisnik", req.getRemoteAddr(), req.getMethod(), loginUser.getEmail());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Email: {}", "loginKorisnik", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), loginUser.getEmail());
+			
 			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		
@@ -110,11 +144,16 @@ public class LoginController {
         Rola rola = rolaRepository.findByNazivRole("ROLE_KORISNIK");
         final String token = jwtTokenUtil.doGenerateToken(new User(user, rola));
         
+        if(req.getHeader("X-FORWARDED-FOR")==null)
+			log.info("Success - ProcessID: {} - IPAddress: {} - Type: {} - Email: {}", "loginKorisnik", req.getRemoteAddr(), req.getMethod(), loginUser.getEmail());
+		else
+			log.info("Success - ProcessID: {} - IPAddress: {} - Type: {} - Email: {}", "loginKorisnik", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), loginUser.getEmail());
+        
         return ResponseEntity.ok(token);
     }
 	
 	@PostMapping("/role")
-	public ResponseEntity<UserDAO> roleKorisnika(@RequestBody String token){
+	public ResponseEntity<UserDAO> roleKorisnika(@RequestBody String token, HttpServletRequest req){
 		String rola = "";
 		String lozinka = "";
 		
@@ -139,6 +178,12 @@ public class LoginController {
         } else {
         	return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
+		
+		 if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "roleKorisnika", req.getRemoteAddr(), req.getMethod());
+			else
+				log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "roleKorisnika", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+	        
 		
 		return new ResponseEntity<UserDAO>(new UserDAO(email, lozinka, rola), HttpStatus.OK);
 	}

@@ -2,6 +2,10 @@ package io.xws.adminservice.controller;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,12 +23,14 @@ import io.xws.adminservice.service.AgentService;
 
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://localhost:3000")
 @RequestMapping("/agent-global-service/admin")
 public class AgentController 
 {
 	@Autowired
 	private AgentService adminService;
+	
+	Logger log = LogManager.getLogger(AgentController.class);
 	
 	
 	/*
@@ -48,14 +54,31 @@ public class AgentController
 	 */
 	@PreAuthorize("hasAnyRole('ROLE_ADMIN')")
 	@PostMapping("/confirmrequest/{id}")
-	public ResponseEntity<String> createPotvrdiZahtev(@PathVariable("id") Long id)
+	public ResponseEntity<String> createPotvrdiZahtev(@PathVariable("id") Long id, HttpServletRequest req)
 	{
 		System.out.println("createPotvrdiZahtev()");
 		
 		String response = adminService.createPotvrdiZahtev(id);
 		
-		return (!response.equals("OK")) ? new ResponseEntity<String>(response, HttpStatus.BAD_REQUEST) : new ResponseEntity<String>(response, HttpStatus.ACCEPTED);
-		
+
+		if(!response.equals("OK"))
+		{
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "createPotvrdiZahtev", req.getRemoteAddr(), req.getMethod());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "createPotvrdiZahtev", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
+			return new ResponseEntity<String>(response, HttpStatus.BAD_REQUEST);
+		}
+		else
+		{
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "createPotvrdiZahtev", req.getRemoteAddr(), req.getMethod());
+			else
+				log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "createPotvrdiZahtev", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
+			return new ResponseEntity<String>(response, HttpStatus.ACCEPTED);
+		}
 	}
 	
 	/*
@@ -63,11 +86,28 @@ public class AgentController
 	 */
 	@PreAuthorize("hasAnyRole('ROLE_ADMIN')")
 	@DeleteMapping("/refuserequest/{id}")
-	public ResponseEntity<Boolean> deleteOdbijZahtev(@PathVariable("id") Long id)
+	public ResponseEntity<Boolean> deleteOdbijZahtev(@PathVariable("id") Long id, HttpServletRequest req)
 	{
 		System.out.println("deleteOdbijZahtev()");
 		
-		return (!adminService.deleteOdbijZahtev(id)) ? new ResponseEntity<Boolean>(false, HttpStatus.BAD_REQUEST) : new ResponseEntity<Boolean>(true, HttpStatus.OK);
+		if(!adminService.deleteOdbijZahtev(id))
+		{
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "deleteOdbijZahtev", req.getRemoteAddr(), req.getMethod());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "deleteOdbijZahtev", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
+			return new ResponseEntity<Boolean>(false, HttpStatus.BAD_REQUEST);
+		}
+		else
+		{
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "deleteOdbijZahtev", req.getRemoteAddr(), req.getMethod());
+			else
+				log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "deleteOdbijZahtev", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
+			return new ResponseEntity<Boolean>(true, HttpStatus.OK);
+		}
 		
 	}
 

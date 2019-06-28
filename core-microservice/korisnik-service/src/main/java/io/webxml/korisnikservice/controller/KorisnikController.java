@@ -1,5 +1,10 @@
 package io.webxml.korisnikservice.controller;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +29,8 @@ public class KorisnikController {
 
 	@Autowired
 	private KorisnikService korisnikService;
+	
+	Logger log = LogManager.getLogger(KorisnikController.class);
 	
 	@Autowired
 	JwtTokenUtils jwtTokenUtils;
@@ -53,13 +60,38 @@ public class KorisnikController {
 	*/
 	
 	@RequestMapping(value = "/register", method = RequestMethod.POST, consumes = "application/json")
-	public ResponseEntity<Valid> register(@RequestBody Korisnik korisnik){
+	public ResponseEntity<Valid> register(@RequestBody Korisnik korisnik, HttpServletRequest req){
 		Valid v = korisnikService.register(korisnik);
 		if (!v.isValid()) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Email: {}", "register", req.getRemoteAddr(), req.getMethod(), korisnik.getEmail());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Email: {}", "register", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), korisnik.getEmail());
+			
 			return new ResponseEntity<Valid>(v, HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		Korisnik k = korisnikService.getKorisnikByEmail(korisnik.getEmail());
-		return (k!=null) ? new ResponseEntity<>(HttpStatus.CREATED) : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		
+		if(k!=null)
+		{
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.info("Success - ProcessID: {} - IPAddress: {} - Type: {} - Email: {}", "register", req.getRemoteAddr(), req.getMethod(), korisnik.getEmail());
+			else
+				log.info("Success - ProcessID: {} - IPAddress: {} - Type: {} - Email: {}", "register", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), korisnik.getEmail());
+			
+			return new ResponseEntity<>(HttpStatus.CREATED);
+		}
+		else
+		{
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Email: {}", "register", req.getRemoteAddr(), req.getMethod(), korisnik.getEmail());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Email: {}", "register", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), korisnik.getEmail());
+			
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		
 	}
 	
 	/*

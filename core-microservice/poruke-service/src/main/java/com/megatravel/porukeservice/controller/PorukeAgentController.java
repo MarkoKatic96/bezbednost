@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,6 +39,7 @@ import com.megatravel.porukeservice.security.JwtTokenUtils;
 import com.megatravel.porukeservice.service.PorukeService;
 import com.megatravel.porukeservice.validators.Valid;
 
+
 @RestController
 @RequestMapping("/poruke-agent-service/poruke")
 public class PorukeAgentController {
@@ -46,6 +52,8 @@ public class PorukeAgentController {
 	
 	@Autowired
 	RestTemplate restTemplate;
+	
+	Logger log = LogManager.getLogger(PorukeAgentController.class);
 	
 	@PreAuthorize("hasAnyRole('ROLE_AGENT')")
 	@RequestMapping(value = "/{userId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -143,6 +151,12 @@ public class PorukeAgentController {
 		
 		Agent agent = agentEntity.getBody();
 		if (agent == null) {			
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "setProcitanePorukeFromUser", req.getRemoteAddr(), req.getMethod());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "setProcitanePorukeFromUser", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
 			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 		}
 		
@@ -152,6 +166,12 @@ public class PorukeAgentController {
 			p.setStatus(StatusPoruke.PROCITANA);
 			porukeService.save(p);
 		}
+		
+		if(req.getHeader("X-FORWARDED-FOR")==null)
+			log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "setProcitanePorukeFromUser", req.getRemoteAddr(), req.getMethod());
+		else
+			log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "setProcitanePorukeFromUser", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+		
 
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
@@ -166,30 +186,71 @@ public class PorukeAgentController {
 		
 		ResponseEntity<Agent> agentEntity = restTemplate.getForEntity("https://agent-global-service/agent/e/"+email, Agent.class);
 		if (agentEntity.getStatusCode() != HttpStatus.OK) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Receiver: {}", "sendPoruka", req.getRemoteAddr(), req.getMethod(), novaPoruka.getPrimalac());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Receiver: {}", "sendPoruka", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), novaPoruka.getPrimalac());
+			
+			
 			return new ResponseEntity<>(agentEntity.getStatusCode());
 		}
 		
 		Agent agent = agentEntity.getBody();
 		if (agent == null) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Receiver: {}", "sendPoruka", req.getRemoteAddr(), req.getMethod(), novaPoruka.getPrimalac());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Receiver: {}", "sendPoruka", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), novaPoruka.getPrimalac());
+			
+			
 			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 		}
 		
 		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("https://korisnik-service/korisnik-service//korisnici/"+novaPoruka.getPrimalac(), Korisnik.class);
 		if (korisnikEntity.getStatusCode() != HttpStatus.OK) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Receiver: {}", "sendPoruka", req.getRemoteAddr(), req.getMethod(), novaPoruka.getPrimalac());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Receiver: {}", "sendPoruka", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), novaPoruka.getPrimalac());
+			
+			
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		
 		Korisnik korisnik = korisnikEntity.getBody();
 		if (korisnik == null) {			
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Receiver: {}", "sendPoruka", req.getRemoteAddr(), req.getMethod(), novaPoruka.getPrimalac());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Receiver: {}", "sendPoruka", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), novaPoruka.getPrimalac());
+			
+			
 			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 		}
 		
 		Poruka poruka = new Poruka(null, agent.getIdAgenta(), TipOsobe.AGENT, novaPoruka.getPrimalac(), TipOsobe.KORISNIK, novaPoruka.getSadrzaj(), StatusPoruke.POSLATA);
 		if (!Pattern.matches("[\\p{L}\\p{M}]+", poruka.getSadrzaj())) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Receiver: {}", "sendPoruka", req.getRemoteAddr(), req.getMethod(), novaPoruka.getPrimalac());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Receiver: {}", "sendPoruka", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), novaPoruka.getPrimalac());
+			
+			
 			return new ResponseEntity<>(new Valid(false, "PORUKA_CHAR"), HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		
 		Poruka retVal = porukeService.save(poruka);
+		
+		if(req.getHeader("X-FORWARDED-FOR")==null)
+			log.info("Success - ProcessID: {} - IPAddress: {} - Type: {} - Receiver: {}", "sendPoruka", req.getRemoteAddr(), req.getMethod(), novaPoruka.getPrimalac());
+		else
+			log.info("Success - ProcessID: {} - IPAddress: {} - Type: {} - Receiver: {}", "sendPoruka", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), novaPoruka.getPrimalac());
+		
 		
 		return new ResponseEntity<>(new PorukaDTO(retVal), HttpStatus.CREATED);
 	}

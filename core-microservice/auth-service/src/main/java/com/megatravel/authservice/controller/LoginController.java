@@ -74,8 +74,15 @@ public class LoginController {
 			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
 		}
     	
-    	final Admin user = adminRepository.findByEmailPassword(loginUser.getEmail().trim(), passwordEncoder.encode(loginUser.getLozinka().trim()));
-        if (user==null) {
+		final Admin user = adminRepository.findByEmail(loginUser.getEmail());
+		boolean result = passwordEncoder.matches(loginUser.getLozinka(), user.getLozinka());
+        if (!result) {
+        	
+        	if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Email: {}", "loginAdmin", req.getRemoteAddr(), req.getMethod(), loginUser.getEmail());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Email: {}", "loginAdmin", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), loginUser.getEmail());
+        	
         	return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
         }
         
@@ -105,8 +112,15 @@ public class LoginController {
 			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		
-		final Agent user = agentRepository.findByEmailPassword(loginUser.getEmail(), passwordEncoder.encode(loginUser.getLozinka()));
-        if (user==null) {
+		final Agent user = agentRepository.findByEmail(loginUser.getEmail());
+		boolean result = passwordEncoder.matches(loginUser.getLozinka(), user.getLozinka());
+        if (!result) {
+        	
+        	if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Email: {}", "loginAgent", req.getRemoteAddr(), req.getMethod(), loginUser.getEmail());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Email: {}", "loginAgent", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), loginUser.getEmail());
+        	
         	return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
         }
         
@@ -136,8 +150,14 @@ public class LoginController {
 			return new ResponseEntity<>(v.getErrCode(),HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		
-		final Korisnik user = korisnikRepository.findByEmailPassword(loginUser.getEmail(), passwordEncoder.encode(loginUser.getLozinka()));
-        if (user==null) {
+		final Korisnik user = korisnikRepository.findByEmail(loginUser.getEmail());
+		boolean result = passwordEncoder.matches(loginUser.getLozinka(), user.getLozinka());
+        if (!result) {
+        	if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Email: {}", "loginKorisnik", req.getRemoteAddr(), req.getMethod(), loginUser.getEmail());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Email: {}", "loginKorisnik", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), loginUser.getEmail());
+        	
         	return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
         }
         

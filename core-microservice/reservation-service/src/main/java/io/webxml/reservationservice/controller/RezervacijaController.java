@@ -79,7 +79,7 @@ public class RezervacijaController {
 		String token = jwtTokenUtils.resolveToken(req);
 		String email = jwtTokenUtils.getUsername(token);
 		
-		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("https://korisnik-service/korisnik/"+email, Korisnik.class);
+		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("https://korisnik-service/korisnik-service/korisnik/"+email, Korisnik.class);
 		if (korisnikEntity.getStatusCode() != HttpStatus.OK) {
 			return null;
 		}
@@ -100,7 +100,7 @@ public class RezervacijaController {
 		String token = jwtTokenUtils.resolveToken(req);
 		String email = jwtTokenUtils.getUsername(token);
 		
-		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("https://korisnik-service/korisnik/"+email, Korisnik.class);
+		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("https://korisnik-service/korisnik-service/korisnik/"+email, Korisnik.class);
 		if (korisnikEntity.getStatusCode() != HttpStatus.OK || korisnikEntity.getBody()==null) {
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}

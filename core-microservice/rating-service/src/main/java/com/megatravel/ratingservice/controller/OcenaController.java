@@ -121,7 +121,7 @@ public class OcenaController {
 	public ResponseEntity<Float> getAverageOcenaForSmestaj(@PathVariable Long id) {
 		float ocena = ocenaService.getAverageOcenaForSmestaj(id);
 		if (ocena>0 && ocena<6) {
-			return new ResponseEntity<>(new Float(ocena),HttpStatus.OK);
+			return new ResponseEntity<>(new Float(ocena), HttpStatus.OK);
 		}
 		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		

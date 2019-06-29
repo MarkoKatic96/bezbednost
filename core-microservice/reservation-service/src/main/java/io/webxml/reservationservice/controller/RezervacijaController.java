@@ -80,11 +80,23 @@ public class RezervacijaController {
 		
 		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("https://korisnik-service/korisnik-service/korisnik/"+email, Korisnik.class);
 		if (korisnikEntity.getStatusCode() != HttpStatus.OK) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "getAllReservationsFromUser", req.getRemoteAddr(), req.getMethod());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "getAllReservationsFromUser", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
 			return null;
 		}
 		
 		Korisnik korisnik = korisnikEntity.getBody();
-		if (korisnik == null) {			
+		if (korisnik == null) {	
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "getAllReservationsFromUser", req.getRemoteAddr(), req.getMethod());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "getAllReservationsFromUser", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
 			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 		}
 		
@@ -100,6 +112,12 @@ public class RezervacijaController {
 		
 		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("https://korisnik-service/korisnik-service/korisnik/"+email, Korisnik.class);
 		if (korisnikEntity.getStatusCode() != HttpStatus.OK || korisnikEntity.getBody()==null) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Time: {}", "reserve", req.getRemoteAddr(), req.getMethod(), rezervacija.getTimestamp());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Time: {}", "reserve", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), rezervacija.getTimestamp());
+			
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 		

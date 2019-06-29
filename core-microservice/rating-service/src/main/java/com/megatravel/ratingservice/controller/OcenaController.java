@@ -51,6 +51,13 @@ public class OcenaController {
 		
 		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("https://korisnik-service/korisnik-service/korisnik/"+email, Korisnik.class);
 		if (korisnikEntity.getStatusCode() != HttpStatus.OK || korisnikEntity.getBody()==null) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Rating: {}", "createOcena", req.getRemoteAddr(), req.getMethod(), novaOcena.getOcena());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Rating: {}", "createOcena", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), novaOcena.getOcena());
+			
+			
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 		

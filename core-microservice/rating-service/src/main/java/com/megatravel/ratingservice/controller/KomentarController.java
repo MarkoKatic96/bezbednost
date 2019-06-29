@@ -3,6 +3,7 @@ package com.megatravel.ratingservice.controller;
 import java.util.List;
 import java.util.Optional;
 
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.logging.log4j.LogManager;
@@ -60,6 +61,13 @@ public class KomentarController {
 		
 		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("https://korisnik-service/korisnik-service/korisnik/"+email, Korisnik.class);
 		if (korisnikEntity.getStatusCode() != HttpStatus.OK || korisnikEntity.getBody()==null) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "createKomentar", req.getRemoteAddr(), req.getMethod());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "createKomentar", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
+			
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 		
@@ -170,10 +178,17 @@ public class KomentarController {
 	
 	@PreAuthorize("hasAnyRole('ROLE_ADMIN')")
 	@RequestMapping(value = "/neprocitane", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<Komentar>> getNeobjavljeniKomentari(Pageable page) {
+	public ResponseEntity<List<Komentar>> getNeobjavljeniKomentari(Pageable page, HttpServletRequest req) {
 		System.out.println("getNeobjavljeniKomentari()");
 		
 		if (page==null) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "getNeobjavljeniKomentari", req.getRemoteAddr(), req.getMethod());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "getNeobjavljeniKomentari", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
+			
 			return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		
@@ -182,6 +197,12 @@ public class KomentarController {
 		HttpHeaders headers = new HttpHeaders();
 		long komentariTotal = neobjavljeniKomentari.getTotalElements();
 		headers.add("X-Total-Count", String.valueOf(komentariTotal));
+		
+		if(req.getHeader("X-FORWARDED-FOR")==null)
+			log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "getNeobjavljeniKomentari", req.getRemoteAddr(), req.getMethod());
+		else
+			log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "getNeobjavljeniKomentari", req.getHeader("X-FORWARDED-FOR"));
+		
 
 		return new ResponseEntity<>(neobjavljeniKomentari.getContent(), headers, HttpStatus.OK);
 	}

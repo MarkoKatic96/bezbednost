@@ -61,15 +61,34 @@ public class PorukeKorisnikController {
 		
 		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("https://korisnik-service/korisnik-service/korisnik/"+email, Korisnik.class);
 		if (korisnikEntity.getStatusCode() != HttpStatus.OK) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "getPorukeWithAgent", req.getRemoteAddr(), req.getMethod());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "getPorukeWithAgent", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
 			return null;
 		}
 		
 		Korisnik korisnik = korisnikEntity.getBody();
-		if (korisnik == null) {			
+		if (korisnik == null) {		
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "getPorukeWithAgent", req.getRemoteAddr(), req.getMethod());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "getPorukeWithAgent", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
 			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 		}
 		
 		if (page==null) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "getPorukeWithAgent", req.getRemoteAddr(), req.getMethod());
+			else
+				log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "getPorukeWithAgent", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
+			
 			return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		
@@ -97,11 +116,23 @@ public class PorukeKorisnikController {
 		
 		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("https://korisnik-service/korisnik-service/korisnik/"+email, Korisnik.class);
 		if (korisnikEntity.getStatusCode() != HttpStatus.OK) {
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "getNeprocitanePoruke", req.getRemoteAddr(), req.getMethod());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "getNeprocitanePoruke", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
 			return null;
 		}
 		
 		Korisnik korisnik = korisnikEntity.getBody();
-		if (korisnik == null) {			
+		if (korisnik == null) {		
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "getNeprocitanePoruke", req.getRemoteAddr(), req.getMethod());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "getNeprocitanePoruke", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
+			
 			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
 		}
 		
@@ -117,6 +148,12 @@ public class PorukeKorisnikController {
 			retVal.add(new PorukaDTO(p));
 		}
 		
+		if(req.getHeader("X-FORWARDED-FOR")==null)
+			log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "getNeprocitanePoruke", req.getRemoteAddr(), req.getMethod());
+		else
+			log.info("Success - ProcessID: {} - IPAddress: {} - Type: {}", "getNeprocitanePoruke", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+		
+		
 		return new ResponseEntity<>(retVal, headers, HttpStatus.OK);
 	}
 	
@@ -129,6 +166,13 @@ public class PorukeKorisnikController {
 		
 		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("https://korisnik-service/korisnik-service/korisnik/"+email, Korisnik.class);
 		if (korisnikEntity.getStatusCode() != HttpStatus.OK) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "setProcitanePorukeFromAgent", req.getRemoteAddr(), req.getMethod());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {}", "setProcitanePorukeFromAgent", req.getHeader("X-FORWARDED-FOR"), req.getMethod());
+			
+			
 			return null;
 		}
 		
@@ -168,6 +212,13 @@ public class PorukeKorisnikController {
 		
 		ResponseEntity<Korisnik> korisnikEntity = restTemplate.getForEntity("https://korisnik-service/korisnik-service/korisnik/"+email, Korisnik.class);
 		if (korisnikEntity.getStatusCode() != HttpStatus.OK) {
+			
+			if(req.getHeader("X-FORWARDED-FOR")==null)
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Receiver: {}", "sendPoruka", req.getRemoteAddr(), req.getMethod(), novaPoruka.getPrimalac());
+			else
+				log.error("Failed - ProcessID: {} - IPAddress: {} - Type: {} - Receiver: {}", "sendPoruka", req.getHeader("X-FORWARDED-FOR"), req.getMethod(), novaPoruka.getPrimalac());
+			
+			
 			return null;
 		}
 		
